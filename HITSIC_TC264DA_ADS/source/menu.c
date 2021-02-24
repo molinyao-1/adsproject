@@ -197,17 +197,17 @@ int MENU_keyScan(int mode)
 {
     static int key_up=1;
     if(mode)key_up=1;
-//    if(key_up&&(!GPIO_Read(GPIOE,7)||!GPIO_Read(GPIOE,8)||!GPIO_Read(GPIOE,9)||!GPIO_Read(GPIOE,10)||!GPIO_Read(GPIOE,11)))
-//    {
-//        SDK_DelayAtLeastUs(10*1000,180*1000*1000);
-//        key_up=0;
-//        if(!GPIO_Read(GPIOE,7))return 8;
-//        else if(!GPIO_Read(GPIOE,8))return 4;
-//        else if(!GPIO_Read(GPIOE,9))return 6;
-//        else if(!GPIO_Read(GPIOE,10))return 5;
-//        else if(!GPIO_Read(GPIOE,11))return 2;
-//    }
-//    else if(GPIO_Read(GPIOE,7)&&GPIO_Read(GPIOE,8)&&GPIO_Read(GPIOE,9)&&GPIO_Read(GPIOE,10)&&GPIO_Read(GPIOE,11))key_up=1;
+    if(key_up&&(!GPIO_Read(P33,13)||!GPIO_Read(P22,0)||!GPIO_Read(P22,1)||!GPIO_Read(P22,3)||!GPIO_Read(P22,4)))
+    {
+        Delay_ms(STM0,10);
+        key_up=0;
+        if(!GPIO_Read(P22,0))return 8;
+        else if(!GPIO_Read(P22,2))return 4;
+        else if(!GPIO_Read(P22,3))return 6;
+        else if(!GPIO_Read(P33,13))return 5;
+        else if(!GPIO_Read(P22,1))return 2;
+    }
+    else if(GPIO_Read(P33,13)&&GPIO_Read(P22,0)&&GPIO_Read(P22,1)&&GPIO_Read(P22,2)&&GPIO_Read(P22,3))key_up=1;
     return 0;
 }
 

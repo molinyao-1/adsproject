@@ -12,6 +12,7 @@
 #include "SmartCar_MPU.h"
 #include "SmartCar_MT9V034.h"
 #include "SmartCar_Systick.h"
+#include "SmartCar_GPIO.h"
 #include "common.h"
 #include "SmartCar_Flash.h"
 
