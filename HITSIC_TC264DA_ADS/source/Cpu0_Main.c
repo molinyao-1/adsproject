@@ -37,13 +37,16 @@
 #include "SmartCar_Systick.h"
 #include "SmartCar_GPIO.h"
 #include "SmartCar_PIT.h"
+#include "SmartCar_Encoder.h"
 #include "common.h"
 #include "image.h"
 #include "menu.h"
+#include "beacon_control.h"
 
 
 #pragma section all "cpu0_dsram"
 //IfxCpu_syncEvent g_cpuSyncEvent;
+mpu_t* this_mpu;
 
 int core0_main(void)
 {
@@ -60,41 +63,62 @@ int core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    //初始化外设
-    //OLED初始化
+    /****初始化外设****/
+    /*OLED初始化*/
     SmartCar_Oled_Init();
-    //总钻风初始化
+    /**/
+
+    /*总钻风初始化*/
     SmartCar_MT9V034_Init();
-    //外部中断初始化
+    /**/
+
+    /*外部中断初始化*/
 //    Eru_Init();
-    //PWM初始化
-    SmartCar_Gtm_Pwm_Init(&IfxGtm_ATOM0_7_TOUT64_P20_8_OUT,50,5000);
-    //串口初始化
+    /**/
+
+    /*PWM初始化*/
+    Servo_motorinit();
+    /**/
+
+    /*编码器初始化*/
+    Encoder_init();
+
+    /*串口初始化*/
     SmartCar_Uart_Init(IfxAsclin0_TX_P14_0_OUT,IfxAsclin0_RXA_P14_1_IN,1152000,0);
-    //GPIO初始化
+    /**/
+
+    /*GPIO初始化*/
     /*菜单用GPIO初始化*/
-    GPIO_Init(P33,13,PULLUP,1);
-    GPIO_Init(P22,0,PULLUP,1);
-    GPIO_Init(P22,1,PULLUP,1);
-    GPIO_Init(P22,2,PULLUP,1);
-    GPIO_Init(P22,3,PULLUP,1);
+    Menu_gpioinit();
+    /**/
 
+    /*定时中断初始化*/
+//    Pit_Init_ms(CCU6_0,PIT_CH0,500);
+//    Pit_Enable_Interrupt(CCU6_0,PIT_CH0);
+//    Pit_Start(CCU6_0,PIT_CH0);
+    /**/
 
-    //定时中断初始化
-    Pit_Init_ms(CCU6_0,PIT_CH0,500);
-    Pit_Enable_Interrupt(CCU6_0,PIT_CH0);
-    Pit_Start(CCU6_0,PIT_CH0);
-    //ADC初始化
+    /*ADC初始化*/
 //  ADC_Init();
+    /**/
 
     IfxCpu_enableInterrupts();
 
+
+    /*初始化菜单*/
 //    SmartCar_OLED_Fill(0);
-//    /*初始化菜单*/
 //    MENU_Tree();
-//    /*显示首页面*/
+    /*显示首页面*/
 //    MENU_Start();
 //    MENU_Read();
+    /**/
+
+    /*初始化mpu*/
+    SmartCar_MPU_Set_DefaultConfig(this_mpu);
+    SmartCar_MPU_Init2(this_mpu);
+    SmartCar_GyroOffset(this_mpu);
+    /**/
+
     while(TRUE)
     {
         while(!mt9v034_finish_flag){}
@@ -112,14 +136,6 @@ IFX_INTERRUPT(cc60_pit_ch0_isr, 0, CCU6_0_CH0_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
     PIT_CLEAR_FLAG(CCU6_0, PIT_CH0);
-    int i = 0;
-    if(i == 0)
-        SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM0_7_TOUT64_P20_8_OUT,100);
-    else
-        SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM0_7_TOUT64_P20_8_OUT,9000);
-    i++;
-    if(i == 2)
-        i = 0;
 }
 
 #pragma section all restore

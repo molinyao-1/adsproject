@@ -25,6 +25,14 @@ int ichangeadd = 1;
 float fchangeadd = 1;
 int changej = 0;
 
+void Menu_gpioinit()
+{
+    GPIO_Init(P33,13,PULLUP,1);
+    GPIO_Init(P22,0,PULLUP,1);
+    GPIO_Init(P22,1,PULLUP,1);
+    GPIO_Init(P22,2,PULLUP,1);
+    GPIO_Init(P22,3,PULLUP,1);
+}
 
 void MENU_listmmc()
 {

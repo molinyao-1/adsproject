@@ -39,6 +39,7 @@ int MENU_keyScan(int mode);
 void MENU_new();
 void MENU_add(int datint, float datfloat, int page, char* nam);
 void MENU_listmmc();
+void Menu_gpioinit();
 
 
 void MENU_changeint(int changenum);
