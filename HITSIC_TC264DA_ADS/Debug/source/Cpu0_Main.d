@@ -2,6 +2,10 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 Cpu0_Main.o :	../source/Cpu0_Main.c
 ../source/Cpu0_Main.c :
 Cpu0_Main.o :	../Configurations/Ifx_Cfg.h
@@ -56,5 +60,125 @@ Cpu0_Main.o :	../SmartCar/SmartCar_Systick.h
 ../SmartCar/SmartCar_Systick.h :
 Cpu0_Main.o :	../SmartCar/common.h
 ../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_GPIO.h
+../SmartCar/SmartCar_GPIO.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_PIT.h
+../SmartCar/SmartCar_PIT.h :
 Cpu0_Main.o :	../SmartCar/common.h
 ../SmartCar/common.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h
+../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/If/Ccu6If/Timer.h
+../Libraries/Service/CpuGeneric/If/Ccu6If/Timer.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h
+../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Encoder.h
+../SmartCar/SmartCar_Encoder.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/StdIf/IfxStdIf_Pos.h
+../Libraries/Service/CpuGeneric/StdIf/IfxStdIf_Pos.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/StdIf/IfxStdIf.h
+../Libraries/Service/CpuGeneric/StdIf/IfxStdIf.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/StdIf/IfxStdIf_DPipe.h
+../Libraries/Service/CpuGeneric/StdIf/IfxStdIf_DPipe.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h
+../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_ADC.h
+../SmartCar/SmartCar_ADC.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h
+../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../source/image.h
+../source/image.h :
+Cpu0_Main.o :	../source/image.h
+../source/image.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MT9V034.h
+../SmartCar/SmartCar_MT9V034.h :
+Cpu0_Main.o :	../source/menu.h
+../source/menu.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Uart.h
+../SmartCar/SmartCar_Uart.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Upload.h
+../SmartCar/SmartCar_Upload.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Oled.h
+../SmartCar/SmartCar_Oled.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Pwm.h
+../SmartCar/SmartCar_Pwm.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MPU.h
+../SmartCar/SmartCar_MPU.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MT9V034.h
+../SmartCar/SmartCar_MT9V034.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Systick.h
+../SmartCar/SmartCar_Systick.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Flash.h
+../SmartCar/SmartCar_Flash.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h
+../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h :
+Cpu0_Main.o :	../source/beacon_control.h
+../source/beacon_control.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Uart.h
+../SmartCar/SmartCar_Uart.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Upload.h
+../SmartCar/SmartCar_Upload.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Oled.h
+../SmartCar/SmartCar_Oled.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Pwm.h
+../SmartCar/SmartCar_Pwm.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MPU.h
+../SmartCar/SmartCar_MPU.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MT9V034.h
+../SmartCar/SmartCar_MT9V034.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Systick.h
+../SmartCar/SmartCar_Systick.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_PIT.h
+../SmartCar/SmartCar_PIT.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Encoder.h
+../SmartCar/SmartCar_Encoder.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Upload.h
+../SmartCar/SmartCar_Upload.h :
+Cpu0_Main.o :	../source/lib_pidctrl.h
+../source/lib_pidctrl.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../source/testsome.h
+../source/testsome.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Uart.h
+../SmartCar/SmartCar_Uart.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Upload.h
+../SmartCar/SmartCar_Upload.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Oled.h
+../SmartCar/SmartCar_Oled.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Pwm.h
+../SmartCar/SmartCar_Pwm.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MPU.h
+../SmartCar/SmartCar_MPU.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_MT9V034.h
+../SmartCar/SmartCar_MT9V034.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Systick.h
+../SmartCar/SmartCar_Systick.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_PIT.h
+../SmartCar/SmartCar_PIT.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Encoder.h
+../SmartCar/SmartCar_Encoder.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Upload.h
+../SmartCar/SmartCar_Upload.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_ADC.h
+../SmartCar/SmartCar_ADC.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../source/VA_get.h
+../source/VA_get.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Pwm.h
+../SmartCar/SmartCar_Pwm.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_ADC.h
+../SmartCar/SmartCar_ADC.h :

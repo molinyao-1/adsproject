@@ -27,7 +27,7 @@
 /*
  * brief uart发送数据
  * */
-void SmartCar_Uart_Upload(uint8* txData, Ifx_SizeT count);
+void SmartCar_Uart_Upload(uint8* txData, Ifx_SizeT count,uint8 uartnum);
 
 /*
  * brief uart向上位机发送数据

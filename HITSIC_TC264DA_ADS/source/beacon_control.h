@@ -25,6 +25,8 @@
 #include "SmartCar_Upload.h"
 #include "lib_pidctrl.h"
 #include "common.h"
+#include "stdlib.h"
+#include "stdint.h"
 
 typedef struct
 {
@@ -40,6 +42,14 @@ typedef struct
 }pid;
 
 
+typedef struct
+{
+
+    IfxGtm_Atom_ToutMap* chnlNumber;
+    uint32_t dutyFreq;
+    float dutyCycle;
+}PWMCFG_T;
+
 void FINAL_CONTROL();
 void CAMERA_JUDGE();
 void MODE_JUDGE();
@@ -48,15 +58,12 @@ void ERROR();
 void SIDE_JUDGE();
 void FIND_LIGHT();
 
-void Servo_assign();
 void Servo_motorinit();
 void Encoder_init();
 
 void Servo_control();
 void Motor_control();
-void Motorpid_control();
 //float Motorbpi(pid *pidm, float _err);
-void Motorbpi_Get(float Ldesired,float Rdesired);
 void STOP_JUDGE();
 void TEST_DISTANCE();
 float CarmSqrt(float x);

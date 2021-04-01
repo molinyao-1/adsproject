@@ -160,16 +160,3 @@ IFX_INTERRUPT(eru_ch0_ch4_isr, 0, ERU_CH0_CH4_INT_PRIO)
         CLEAR_GPIO_FLAG(CH4_P15_5);
     }
 }
-
-IFX_INTERRUPT(eru_ch1_ch5_isr, 0, ERU_CH1_CH5_INT_PRIO)
-{
-    enableInterrupts();//开启中断嵌套
-    if(GET_GPIO_FLAG(CH1_P10_8))//通道1中断
-    {
-        CLEAR_GPIO_FLAG(CH1_P10_8);
-    }
-    if(GET_GPIO_FLAG(CH5_P15_8))//通道5中断
-    {
-        CLEAR_GPIO_FLAG(CH5_P15_8);
-    }
-}

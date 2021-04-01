@@ -19,6 +19,7 @@
 
 
 #include "SmartCar_Encoder.h"
+#include "common.h"
 
 
 /*

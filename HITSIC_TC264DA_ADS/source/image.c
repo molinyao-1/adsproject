@@ -34,7 +34,8 @@ uint8 left_line[CAMERA_H], right_line[CAMERA_H];//赛道的左右边界
 uint8 mid_line[CAMERA_H];
 int all_connect_num = 0;//所有白条子数
 uint8 top_road;//赛道最高处所在行数
-int threshold = 100;//阈值
+int threshold = 240;//阈值
+
 
 //add
 int xx, yy;
@@ -50,50 +51,61 @@ float lightdis;
 ///////////////////////////////////////////
 void THRE()
 {
-    uint8 numup = 0;
+    //uint8 numup = 0;
     uint8* map;
     uint8* my_map;
-    map = &mt9v034_image[0][0];
-    for (int i = 0; i < 120; i++)
-    {
-        for (int j = 0; j < 188; j++)
-        {
-            if ((*map) > 150) numup++;
-            map++;
-        }
-    }
+    //map = &mt9v034_image[0][0];
+//    for (int i = 0; i < 120; i++)
+//    {
+//        for (int j = 0; j < 188; j++)
+//        {
+//            if ((*map) > 150) numup++;
+//            map++;
+//        }
+//    }
     //printf("%d\n", numup);
     map = &mt9v034_image[0][0];
-    if (numup > 50)
-    {
+//    uint8 new_image[120][188] = {0};
+//    memcpy(&new_image[0][0],&mt9v034_image[0][0], 120 * 188);
+//    map = &new_image[0][0];
+    //if (numup > 50)
+   // {
         for (int i = 0; i < 120; i++)
         {
             my_map = &IMG[i][0];
             for (int j = 0; j < 188; j++)
             {
                 if ((*map) > threshold)
+                {
+                    //uint8 a =255;
                     (*my_map) = 255;
-                else (*my_map) = 0;
+                }
+//                    continue;
+                 //  (*(my_map))= 255;
+                else
+                {
+                    (*my_map) = 0;
+                }
                 map++;
                 my_map++;
             }
         }
-    }
-    else if (numup <= 50)
-    {
-        for (int i = 0; i < 120; i++)
-        {
-            my_map = &IMG[i][0];
-            for (int j = 0; j < 188; j++)
-            {
-                if ((*map) > threshold)
-                    (*my_map) = 255;
-                else (*my_map) = 0;
-                map++;
-                my_map++;
-            }
-        }
-    }
+   // }
+//    else if (numup <= 50)
+//    {
+//        for (int i = 0; i < 120; i++)
+//        {
+//            my_map = &IMG[i][0];
+//            for (int j = 0; j < 188; j++)
+//            {
+//                if ((*map) > threshold)
+//                    (*my_map) = 255;
+//                else (*my_map) = 0;
+//                map++;
+//                my_map++;
+//            }
+//        }
+//    }
 
 
 
@@ -473,9 +485,9 @@ void mmc_connect_num()
     uint8 connect0 = 0;//灯的祖先标号
     uint8 connectmax = 0;//灯的白条数
     connectnum = 0;//连通域数
-    uint8 connectsum[1000];//祖先连接的白条数
-    for (int i = 1; i < 1000; i++)
-        connectsum[i] = 0;
+    uint8 connectsum[1000]={0};//祖先连接的白条数
+   // for (int i = 1; i < 1000; i++)
+       // connectsum[i] = 0;
     for (int i = 1; i <= all_connect_num; i++)
         if (f[i] == i) connectnum++;
     for (int i = 1; i <= all_connect_num; i++)
@@ -510,7 +522,7 @@ void mmc_connect_num()
                 up = i;
                 for (int k = white_range[i].area[j].left; k <= white_range[i].area[j].right; k++)
                 {
-                    IMG[i][k] = green;
+                    //IMG[i][k] = green;
                     lights++;
                 }
                 if (maxleft > white_range[i].area[j].left) maxleft = white_range[i].area[j].left;
@@ -533,4 +545,7 @@ void mmc_connect_num()
     //printf("距离：%f", lightdis);
     //printf("  x:%f    y:%f\n", lightx, lighty);
     //printf("%d\n", lightdis);
+
+
+    //correct
 }

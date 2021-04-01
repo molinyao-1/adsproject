@@ -22,9 +22,9 @@
 #include "stdarg.h"
 #include "stdlib.h"
 
-void SmartCar_Uart_Upload(uint8* txData, Ifx_SizeT count)
+void SmartCar_Uart_Upload(uint8* txData, Ifx_SizeT count,uint8 uartnum)
 {
-    SmartCar_Uart_Transfer(txData, count, 0);
+    SmartCar_Uart_Transfer(txData, count, uartnum);
 }
 
 
@@ -36,29 +36,32 @@ void SmartCar_VarUpload(float *my_var, uint8 var_num)
     uint8 begin_cmd[3] =
     { 0x55, 0xaa, 0x11 };
     /*! 发送帧头 */
-    SmartCar_Uart_Upload(begin_cmd, sizeof(begin_cmd));
+    SmartCar_Uart_Upload(begin_cmd, sizeof(begin_cmd),2);
     /*! 发送数据个数 */
-    SmartCar_Uart_Upload(cmdf, sizeof(cmdf));
-    SmartCar_Uart_Upload(&var_num, 1);
+    SmartCar_Uart_Upload(cmdf, sizeof(cmdf),2);
+    SmartCar_Uart_Upload(&var_num, 1,2);
     /*! 发送数据 */
-    SmartCar_Uart_Upload((uint8* )(my_var), var_num * 4U);
+    SmartCar_Uart_Upload((uint8* )(my_var), var_num * 4U,2);
     /*! 发送帧尾 */
-    SmartCar_Uart_Upload(&cmdr, 1);
+    SmartCar_Uart_Upload(&cmdr, 1,2);
 }
 
 void SmartCar_ImgUpload(uint8 *upload_img, uint8 row, uint8 col)
 {
+    uint8 new_upload_image[120][188] = {0};
     uint8 cmd = 3, icmd = ~3;
+    memcpy(&new_upload_image[0][0],upload_img, row * col);
+//    uint8 cmd = 0, icmd = 0xff,jcmd = 0x01,kcmd = 0x01;
     uint8 cmdf[2] =
     { cmd, icmd };
     uint8 cmdr[2] =
     { icmd, cmd };
     /*! 发送帧头 */
-    SmartCar_Uart_Upload(cmdf, sizeof(cmdf));
+    SmartCar_Uart_Upload(cmdf, sizeof(cmdf),0);
     /*! 发送数据 */
-    SmartCar_Uart_Upload(upload_img, row * col);
+    SmartCar_Uart_Upload(new_upload_image, row * col,0);
     /*! 发送帧尾 */
-    SmartCar_Uart_Upload(cmdr, sizeof(cmdr));
+    SmartCar_Uart_Upload(cmdr, sizeof(cmdr),0);
 }
 
 void PRINFT(const char* ftm, ...)
@@ -73,7 +76,7 @@ void PRINFT(const char* ftm, ...)
         uint8 i = 0;
         while(p_ch[i] != '\0')
         {
-            SmartCar_Uart_Upload((uint8 *)p_ch+i, 1);
+            SmartCar_Uart_Upload((uint8 *)p_ch+i, 1,2);
             i++;
         }
     }

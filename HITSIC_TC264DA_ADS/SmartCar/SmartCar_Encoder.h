@@ -22,8 +22,8 @@
 #define SMARTCAR_ENCODER_H
 
 #include "IfxGpt12_IncrEnc.h"
+#include "common.h"
 
-typedef short int16;
 typedef enum
 {
     GPT12_T2 = 0,

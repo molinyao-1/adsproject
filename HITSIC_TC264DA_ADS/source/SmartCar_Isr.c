@@ -27,6 +27,13 @@ IFX_INTERRUPT(dma_ch5_isr, 0, ERU_DMA_INT_PRIO)
 
     if      (3 == camera_type)  MT9V034_DMA();
     //else if (1 == camera_type)  ov7725_dma();
+    if(1 == mt9v034_finish_flag)
+    {
+        mt9v034_finish_flag = 0;
+        THRE();
+        image_main();
+        FINAL_CONTROL();
+    }
 }
             /*spi”–πÿdma÷–∂œ*/
 IFX_INTERRUPT(qspi0DmaTxISR, 0, IFX_INTPRIO_DMA_CH1 )
