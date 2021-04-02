@@ -59,6 +59,8 @@ extern int16 rightFTM;
 /*电压电流采集值*/
 extern float battery;
 extern float Icharge;
+extern float battery_last;
+extern float battery_prelast;
 /**/
 
 
@@ -89,11 +91,14 @@ extern int aver_y;
 extern float lightx,lights,lightc;
 extern int servoduty;
 
+
+int gogoflag = 0;
 /*oled灯和图像的切换*/
 int mode = 0;
+int timeget = 0;
 
 
-int core0_main(void)
+ int core0_main(void)
 {
     IfxCpu_disableInterrupts();
 
@@ -140,8 +145,6 @@ int core0_main(void)
     /*菜单用GPIO初始化*/
     Menu_gpioinit();
 
-    /*光电管*/
-    GuangDian_Init();
 //
 //    /*ADC初始化*/
     ADC_Init(ADC_0,ADC0_CH8_A8);
@@ -155,6 +158,8 @@ int core0_main(void)
     /*外部中断初始化*/
     Eru_Init(CH5_P15_8,FALLING);
 
+    /*光电管*/
+    GuangDian_Init();
 
     /**/
     /*OLED初始化*/
@@ -199,12 +204,12 @@ int core0_main(void)
         myvar[4] = servofinal;
         myvar[5] = servodirection;
         myvar[6] = servo_pulse;
-//        myvar[7] = ;
+        myvar[7] = battery;
 
         myvar[8] = Icharge;
         /*显示图像*/
         if(mode == 0){
-            MENU_Make();
+            //SmartCar_VarUpload(myvar,9);
         }
         /**/
         /*按键操作*/
@@ -213,9 +218,14 @@ int core0_main(void)
         }
         else if(mode == 2)
         {
-            SmartCar_VarUpload(myvar,9);
+            MENU_Make();
         }
         else if(mode == 3){}
+
+        if(/*battery>=10&&battery_last>=10&&battery_prelast>=10&&*/timeget == 5000)
+        {
+            gogoflag = 1;
+        }
 
         /*采图*/
 //      SmartCar_ImgUpload((uint8*)IMG,120,188);  //采图用函数
@@ -229,11 +239,13 @@ int core0_main(void)
 IFX_INTERRUPT(cc60_pit_ch0_isr, 0, CCU6_0_CH0_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
+    if(gogoflag == 1){
         leftFTM = -SmartCar_Encoder_Get(GPT12_T4);
         rightFTM = SmartCar_Encoder_Get(GPT12_T6);
         SmartCar_Encoder_Clear(GPT12_T4);
         SmartCar_Encoder_Clear(GPT12_T6);
-    Motor_control();
+        Motor_control();
+    }
     PIT_CLEAR_FLAG(CCU6_0, PIT_CH0);
 
 }
@@ -241,7 +253,9 @@ IFX_INTERRUPT(cc60_pit_ch0_isr, 0, CCU6_0_CH0_ISR_PRIORITY)
 IFX_INTERRUPT(cc61_pit_ch1_isr, 0, CCU6_1_CH1_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
-    Servo_control();
+    if(gogoflag == 1){
+        Servo_control();
+    }
 //    SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM1_1_TOUT31_P33_9_OUT,servoduty);
     PIT_CLEAR_FLAG(CCU6_1, PIT_CH1);
 }
@@ -249,8 +263,11 @@ IFX_INTERRUPT(cc61_pit_ch1_isr, 0, CCU6_1_CH1_ISR_PRIORITY)
 IFX_INTERRUPT(cc61_pit_ch0_isr, 0, CCU6_1_CH0_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
-//    Battery_Get();
-    Icharge_Get();
+    Battery_Get();
+//    Icharge_Get();
+    timeget++;
+    if(timeget >= 5000)
+        timeget = 5000;
     PIT_CLEAR_FLAG(CCU6_1, PIT_CH0);
 
 }

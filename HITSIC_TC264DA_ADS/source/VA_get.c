@@ -9,12 +9,16 @@
 int Battery_Temp[30];//电压采集  //改变采集次数
 int Battery_TempH[30];//电压采集  //改变采集次数
 int Icharge_Temp[30];//电流采集
-float battery;
+float battery = 0;
+float battery_last = 0;
+float battery_prelast = 0;
 float Icharge;
 
 
 void Battery_Get()
 {
+    battery_prelast = battery_last;
+    battery_last = battery;
     for(int i = 0;i<30;i++)
     {
         Battery_Temp[i] = ADC_Get(ADC_0,ADC0_CH11_A11,ADC_8BIT);//电压
@@ -25,7 +29,7 @@ void Battery_Get()
     {
          battery += (float)Battery_Temp[k];
     }
-    battery = (battery/24)/255*3.3*21;//求平均值并进行补正
+    battery = (battery/24)/255*3.3*6;//求平均值并进行补正
 }
 
 void Icharge_Get()

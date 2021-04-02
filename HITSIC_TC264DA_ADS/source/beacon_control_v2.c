@@ -148,10 +148,10 @@ void FINAL_CONTROL()
 {
     CAMERA_JUDGE();
     STOP_JUDGE();
-    ERROR();
     MODE_JUDGE();
+    SIDE_JUDGE();
+    ERROR();
     FIND_LIGHT();
-//    SIDE_JUDGE();
 }
 
 
@@ -183,6 +183,11 @@ void CAMERA_JUDGE()
 /***************************** 状态判断处理程序 *******************************/
 void MODE_JUDGE()
 {
+    LOW = (int)(120-(leftFTM + rightFTM)*correctmenu);
+    if(LOW<25)
+        LOW = 25;
+    else if(LOW>60)
+        LOW = 60;
     if(mode_flag == 3 && fabs(error_simu) < mode0limit ) //看到灯顺正，进入追灯状态，判断条件：信号灯偏差多次小于某一定值时进入追灯，定值10暂定，可以更改
     {
         correct_time++;
@@ -285,11 +290,6 @@ void ERROR()
 //    error_dx = aver_x - origin_x;
 //    error_dy = aver_y - origin_y;
 //    distance = CarmSqrt(error_dx*error_dx + error_dy*error_dy);   //计算灯距
-    LOW = (int)(120-(leftFTM + rightFTM)*correctmenu);
-    if(LOW<25)
-        LOW = 25;
-    else if(LOW>60)
-        LOW = 60;
 
     if(mode_flag == 0 && mode_time == 1)                                          //进入追灯状态判断距离
     {
@@ -368,7 +368,7 @@ void ERROR()
 /***************************** 侧灯判断处理程序 *******************************/
 void SIDE_JUDGE()    //因为没有光电管，前期先不加
 {//side_flag 在车身左为-1，右为1
-    if(/*red_flag == 0&&*/mode_flag != 2&&areaA_time <= 4&&side_flag == 0)
+    if(/*red_flag == 0&&*/mode_flag == 2&&side_flag == 0)
     {
         lightsensor[0] = GPIO_Read(P15,4);
         lightsensor[1] = GPIO_Read(P11,10);
@@ -394,10 +394,9 @@ void SIDE_JUDGE()    //因为没有光电管，前期先不加
             lightsensor[3] = 1;
         }
     }
-    else if(mode_flag != 2&&areaA_time == 0)  //30可调整
+    else if(mode_flag != 2&&areaA_time < connect_max)  //30可调整
     {
 //            red_flag = 2;
-        red_out_flag = 0;
         side_flag = 0;
     }
 //    else if(areaA_time>100&&mode_flag == 2){
@@ -530,7 +529,7 @@ void Motor_control()
             LOW = 25;
         else if(slowline>60)
             LOW = 60;
-        if((aver_x>slowline)&&(mode_flag == 1))
+        if((aver_x>slowline)&&(mode_flag == 1||mode_flag == 3))
         {
             Ldesiredspeed = (float)slowspeedwant;
             Rdesiredspeed = (float)slowspeedwant;
@@ -545,12 +544,18 @@ void Motor_control()
     }
     else //看不到灯
     {
-        Ldesiredspeed = (float)slowspeedwant;
-        Rdesiredspeed = (float)slowspeedwant;
+        if(servodirection == 1)
+        {
+            Ldesiredspeed = (float)slowspeedwant*0.6;
+            Rdesiredspeed = (float)slowspeedwant;
+        }
+        else if(servodirection == -1)
+        {
+            Ldesiredspeed = (float)slowspeedwant;
+            Rdesiredspeed = (float)slowspeedwant*0.6;
+        }
     }
     //Motorpid_control();
-    if(go_flag) //进入跑车状态
-    {
 //        Motorbpi_Get(Ldesiredspeed,Rdesiredspeed);
         //舵机打角大的时候减小电机速度的控制强度
         motorpir.Kp = motorbkp_R;
@@ -594,7 +599,8 @@ void Motor_control()
     //    N_motor_rigdevnU = (uint32)N_motor_rigdevn;
     //    N_motor_lefdevnU = (uint32)N_motor_lefdevn;
 
-
+    if(go_flag) //进入跑车状态
+    {
         SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM0_0_TOUT53_P21_2_OUT,(uint32_t)N_motor_rigdevn);
         if(1){
             SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM0_1_TOUT54_P21_3_OUT,(uint32_t)motor_rigdevn);
@@ -656,7 +662,6 @@ float CarmSqrt(float x){
 
 
 /*（1）切灯还可以将距离换成x拟合一组数据，（2）编码器值-平移距离*/
-
 
 
 /**/

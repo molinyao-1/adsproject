@@ -40,6 +40,7 @@ extern float motorbkp_L;
 extern float motorbki_L;
 extern float klA_adjust;
 extern float krA_adjust;
+extern float correctmenu;
 
 extern int servoduty;
 
@@ -77,6 +78,7 @@ void MENU_listmmc()
     MENU_add(0, slowladjust, 3, "slowladjust");
     MENU_add(0, klA_adjust, 3, "klA_adjust");
     MENU_add(0, krA_adjust, 3, "krA_adjust");
+    MENU_add(0, correctmenu, 3, "correctmenu");
 
 
 }
@@ -105,6 +107,7 @@ void MENU_give()
     slowladjust = menu_node[48].datafloat;
     klA_adjust = menu_node[49].datafloat;
     krA_adjust = menu_node[50].datafloat;
+    correctmenu = menu_node[51].datafloat;
 
 }
 
