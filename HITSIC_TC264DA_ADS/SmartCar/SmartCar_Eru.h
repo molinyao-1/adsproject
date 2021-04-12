@@ -11,6 +11,7 @@
 #include "Src/Std/IfxSrc.h"
 #include "SysSe/Bsp/Bsp.h"
 #include "IfxScuEru.h"
+#include "common.h"
 
 // 枚举触发方式
 typedef enum

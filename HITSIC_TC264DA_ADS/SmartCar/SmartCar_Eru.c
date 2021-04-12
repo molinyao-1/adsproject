@@ -6,7 +6,6 @@
  */
 #include <SmartCar_Eru.h>
 #include "SmartCar_GPIO.h"
-#include "SmartCar_Assert.h"
 
 IfxScu_Req_In* eru_mux(ERU_PIN_enum eru_pin)
 {
@@ -37,7 +36,7 @@ IfxScu_Req_In* eru_mux(ERU_PIN_enum eru_pin)
         case CH7_P15_1:   return &IfxScu_REQ16_P15_1_IN;
         case CH7_P20_9:   return &IfxScu_REQ11_P20_9_IN;
 
-        default:SMARTCAR_ASSERT(FALSE);          return NULL;
+        default:assert(FALSE);          return NULL;
     }
 }
 
@@ -147,16 +146,4 @@ void Eru_Disable(ERU_PIN_enum eru_pin)
 //-------------------------------------------------------------------------------------------------------------------
 //  @brief      GPIO外部中断服务函数示例
 //  @note       一个通道只能选择其中一个引脚作为 外部中断的输入
-//-------------------------------------------------------------------------------------------------------------------
-IFX_INTERRUPT(eru_ch0_ch4_isr, 0, ERU_CH0_CH4_INT_PRIO)
-{
-    enableInterrupts();//开启中断嵌套
-    if(GET_GPIO_FLAG(CH0_P15_4))//通道0中断
-    {
-        CLEAR_GPIO_FLAG(CH0_P15_4);
-    }
-    if(GET_GPIO_FLAG(CH4_P15_5))//通道4中断
-    {
-        CLEAR_GPIO_FLAG(CH4_P15_5);
-    }
-}
+

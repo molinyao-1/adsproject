@@ -548,4 +548,5 @@ void mmc_connect_num()
 
 
     //correct
+    if(lightx>=65) lightx-=60;
 }

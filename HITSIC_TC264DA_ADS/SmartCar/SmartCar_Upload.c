@@ -36,14 +36,14 @@ void SmartCar_VarUpload(float *my_var, uint8 var_num)
     uint8 begin_cmd[3] =
     { 0x55, 0xaa, 0x11 };
     /*! 发送帧头 */
-    SmartCar_Uart_Upload(begin_cmd, sizeof(begin_cmd),2);
+    SmartCar_Uart_Upload(begin_cmd, sizeof(begin_cmd),0);
     /*! 发送数据个数 */
-    SmartCar_Uart_Upload(cmdf, sizeof(cmdf),2);
-    SmartCar_Uart_Upload(&var_num, 1,2);
+    SmartCar_Uart_Upload(cmdf, sizeof(cmdf),0);
+    SmartCar_Uart_Upload(&var_num, 1,0);
     /*! 发送数据 */
-    SmartCar_Uart_Upload((uint8* )(my_var), var_num * 4U,2);
+    SmartCar_Uart_Upload((uint8* )(my_var), var_num * 4U,0);
     /*! 发送帧尾 */
-    SmartCar_Uart_Upload(&cmdr, 1,2);
+    SmartCar_Uart_Upload(&cmdr, 1,0);
 }
 
 void SmartCar_ImgUpload(uint8 *upload_img, uint8 row, uint8 col)

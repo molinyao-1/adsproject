@@ -23,7 +23,6 @@
 #include "SmartCar_PIT.h"
 #include "SmartCar_Encoder.h"
 #include "SmartCar_Upload.h"
-#include "lib_pidctrl.h"
 #include "common.h"
 #include "stdlib.h"
 #include "stdint.h"
@@ -50,6 +49,16 @@ typedef struct
     float dutyCycle;
 }PWMCFG_T;
 
+typedef struct
+{
+   float kp;
+   float kd;
+   float errPrev;
+   float errCurr;
+   float errDiff;
+}
+pidCtrl_t;
+
 void FINAL_CONTROL();
 void CAMERA_JUDGE();
 void MODE_JUDGE();
@@ -67,6 +76,10 @@ void Motor_control();
 void STOP_JUDGE();
 void TEST_DISTANCE();
 float CarmSqrt(float x);
+
+void Imudata_get();
+void Imudataprocess();
+
 
 
 ////мсбщрг

@@ -70,7 +70,7 @@ uint8 SmartCar_EruDma_Init(IfxDma_ChannelId dma_ch, uint8 *source_addr, uint8 *d
     uint8  list_num, i;
     uint16 single_channel_dma_count;
 
-    SMARTCAR_ASSERT(!(dma_count%8));//传输次数必须为8的倍数
+    assert(!(dma_count%8));//传输次数必须为8的倍数
 
 
     list_num = 1;
@@ -85,7 +85,7 @@ uint8 SmartCar_EruDma_Init(IfxDma_ChannelId dma_ch, uint8 *source_addr, uint8 *d
                 break;
             }
             list_num++;
-            if(list_num > 8) SMARTCAR_ASSERT(FALSE);
+            if(list_num > 8) assert(FALSE);
         }
     }
 

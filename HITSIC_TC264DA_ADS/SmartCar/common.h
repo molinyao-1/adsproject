@@ -34,6 +34,7 @@ typedef volatile uint64     vuint64; // 64 bits
 extern IfxCpu_syncEvent g_cpuSyncEvent;
 
 #define AURIX_MCU_FREQUENCY         200*1000*1000//设置单片机频率为200M 200M(默认频率)
+#define assert(exp)     IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR,exp)
 
 void get_clk(void);
 

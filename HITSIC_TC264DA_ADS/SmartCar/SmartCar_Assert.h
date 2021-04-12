@@ -19,13 +19,7 @@
 #ifndef SMARTCAR_ASSERT_H
 #define SMARTCAR_ASSERT_H
 
-
 #include "Ifx_Types.h"
 
-void assert(pchar __file, unsigned int __line, pchar __function);
-
-
-
-#define SMARTCAR_ASSERT(expr)   ((expr) ? ((void)0) : assert(__FILE__, __LINE__, __func__))
 
 #endif

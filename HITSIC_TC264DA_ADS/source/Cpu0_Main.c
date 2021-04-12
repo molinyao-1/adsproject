@@ -44,16 +44,18 @@
 #include "menu.h"
 #include "beacon_control.h"
 #include "testsome.h"
-#include "lib_pidctrl.h"
 #include "VA_get.h"
+#include "EMIT_Pitmgr.h"
+#include "EMIT_List.h"
+#include "SmartCar_Assert.h"
 
 
 
 #pragma section all "cpu0_dsram"
 //IfxCpu_syncEvent g_cpuSyncEvent;
-mpu_t* this_mpu;
+mpu_t this_mpu;
 float time;
-float myvar[8] = {0};
+float myvar[20] = {0};
 extern int16 leftFTM;
 extern int16 rightFTM;
 /*电压电流采集值*/
@@ -75,6 +77,7 @@ extern int simu_y;
 extern int motordutyset;
 extern float motor_rigdevn;
 extern float motor_lefdevn;
+extern int side_flag;
 
 /**/
 
@@ -90,12 +93,30 @@ extern float lighty;
 extern int aver_y;
 extern float lightx,lights,lightc;
 extern int servoduty;
+extern float Rdesiredspeed;
+extern float Ldesiredspeed;
 
-
+int status = 0;
 int gogoflag = 0;
 /*oled灯和图像的切换*/
 int mode = 0;
 int timeget = 0;
+float acc[3] = {0};
+float gyro[3] = {0};
+float gyrolast[3] = {0};
+float gyronow[3] = {0};
+extern float angle_x,angle_y,angle_z;
+
+extern int freshposi;
+extern int freshname;
+
+pitmgr_handle_t* ctrl_motorCtrlHandle = NULL;
+pitmgr_handle_t* ctrl_servoCtrlHandle = NULL;
+pitmgr_handle_t* ctrl_chargeCtrlHandle = NULL;
+
+#define CTRL_MOTOR_CTRL_MS 5
+#define CTRL_SERVO_CTRL_MS 20
+#define CTRL_CHARGE_CTRL_MS 10
 
 
  int core0_main(void)
@@ -118,17 +139,30 @@ int timeget = 0;
 
     /*总钻风初始化*/
     SmartCar_MT9V034_Init();
+
+    /*初始化mpu*/
+    SmartCar_MPU_Set_DefaultConfig(&this_mpu);
+    SmartCar_MPU_Init2(&this_mpu);
+//    SmartCar_GyroOffset(this_mpu);
+    /**/
     /**/
     /*定时中断初始化*/
-    /*电机*/
-    Pit_Init(CCU6_0,PIT_CH0,5*1000);
-//    Pit_Enable_Interrupt(CCU6_0,PIT_CH0);
-//    Pit_Start(CCU6_0,PIT_CH0);
-    //充电
-    Pit_Init(CCU6_1,PIT_CH0,9*1000);
+//    /*电机*/
+//    Pit_Init(CCU6_0,PIT_CH0,5*1000);
+////    Pit_Enable_Interrupt(CCU6_0,PIT_CH0);
+////    Pit_Start(CCU6_0,PIT_CH0);
+//    //充电
+    Pit_Init(CCU6_1,PIT_CH0,0.5*1000);
 //    /*舵机*/
-    Pit_Init(CCU6_1,PIT_CH1,20*1000);
+//    Pit_Init(CCU6_1,PIT_CH1,5*1000);
 
+    PITMGR_Init();
+    ctrl_motorCtrlHandle = PITMGR_HandleInsert(CTRL_MOTOR_CTRL_MS,2U,Motor_control,pitmgr_pptEnable);
+    assert(ctrl_motorCtrlHandle);
+    ctrl_servoCtrlHandle = PITMGR_HandleInsert(CTRL_SERVO_CTRL_MS,0U,Servo_control,pitmgr_pptEnable);
+    assert(ctrl_servoCtrlHandle);
+    ctrl_chargeCtrlHandle = PITMGR_HandleInsert(CTRL_CHARGE_CTRL_MS,1U,Battery_Get,pitmgr_pptEnable);
+    assert(ctrl_chargeCtrlHandle);
     /*PWM初始化*/
     Servo_motorinit();
     /**/
@@ -137,8 +171,8 @@ int timeget = 0;
     Encoder_init();
 
     /*串口初始化*/
-    SmartCar_Uart_Init(IfxAsclin0_TX_P14_0_OUT,IfxAsclin0_RXA_P14_1_IN,1152000,0);
-    SmartCar_Uart_Init(IfxAsclin2_TX_P10_5_OUT,IfxAsclin2_RXD_P10_6_IN,921600,2);
+    SmartCar_Uart_Init(IfxAsclin0_TX_P14_0_OUT,IfxAsclin0_RXA_P14_1_IN,921600,0);
+    //SmartCar_Uart_Init(IfxAsclin2_TX_P10_5_OUT,IfxAsclin2_RXD_P10_6_IN,921600,2);
     /**/
 
     /*GPIO初始化*/
@@ -146,9 +180,10 @@ int timeget = 0;
     Menu_gpioinit();
 
 //
-//    /*ADC初始化*/
+    /*ADC初始化*/
     ADC_Init(ADC_0,ADC0_CH8_A8);
     ADC_Init(ADC_0,ADC0_CH11_A11);
+
     /**/
 
 ////    /*电机舵机测试*/
@@ -157,7 +192,9 @@ int timeget = 0;
 //
     /*外部中断初始化*/
     Eru_Init(CH5_P15_8,FALLING);
-
+    Eru_Init(CH0_P15_4,FALLING);
+    Eru_Init(CH4_P33_7,FALLING);
+//    Eru_Init(CH7_P20_9,FALLING);
     /*光电管*/
     GuangDian_Init();
 
@@ -172,12 +209,9 @@ int timeget = 0;
     MENU_Read();
 
     IfxCpu_enableInterrupts();
-
-    /*初始化mpu*/
-//    SmartCar_MPU_Set_DefaultConfig(this_mpu);
-//    SmartCar_MPU_Init2(this_mpu);
-//    SmartCar_GyroOffset(this_mpu);
-    /**/
+    Eru_Disable(CH0_P15_4);
+    Eru_Disable(CH4_P33_7);
+//    Eru_Disable(CH7_P20_9);
 //
     while(TRUE)
     {
@@ -196,36 +230,48 @@ int timeget = 0;
 //        lightsensor[1] = GPIO_Read(P11,10);
 //        lightsensor[2] = GPIO_Read(P33,7);
 //        lightsensor[3] = GPIO_Read(P20,9);
-//        myvar[0] = lightsensor[0];
-//        myvar[1] = lightsensor[1];
-//        myvar[2] = lightsensor[2];
-//        myvar[3] = lightsensor[3];
+//        Imudata_get();
+//        Imudata_get();
 
-        myvar[4] = servofinal;
-        myvar[5] = servodirection;
-        myvar[6] = servo_pulse;
-        myvar[7] = battery;
+//        myvar[3] = side_flag;
+//        myvar[4] = light_flag;
+//        myvar[5] = gyro[2];
+////        myvar[6] = ;
+////        myvar[7] = battery;
+////
+////        myvar[8] = Icharge;
 
-        myvar[8] = Icharge;
         /*显示图像*/
-        if(mode == 0){
-            //SmartCar_VarUpload(myvar,9);
-        }
-        /**/
-        /*按键操作*/
-        else if(mode == 1){
-            SmartCar_Show_IMG(&IMG[0][0],120,188);
-        }
-        else if(mode == 2)
-        {
-            MENU_Make();
-        }
-        else if(mode == 3){}
+//
+            if(mode == 0){
+                MENU_Make();
+                //SmartCar_VarUpload(myvar,9);
+                //MENU_fresh();
+            }
+            else if(1==mode)
+            {
+                MENU_fresh();
 
-        if(/*battery>=10&&battery_last>=10&&battery_prelast>=10&&*/timeget == 5000)
-        {
-            gogoflag = 1;
-        }
+            }
+            else if(2==mode)
+            {
+                SmartCar_Show_IMG(&IMG[0][0],120,188);
+            }
+//        /**/
+//        /*按键操作*/
+//        else if(mode == 1){
+//            SmartCar_Show_IMG(&IMG[0][0],120,188);
+//        }
+//        else if(mode == 2)
+//        {
+//            SmartCar_VarUpload(myvar,9);
+//        }
+//        else if(mode == 3){}
+//
+//        if(battery>=9&&battery_last>=9&&battery_prelast>=9&&timeget == 500)
+//        {
+//            gogoflag = 1;
+//        }
 
         /*采图*/
 //      SmartCar_ImgUpload((uint8*)IMG,120,188);  //采图用函数
@@ -233,41 +279,55 @@ int timeget = 0;
        /**/
     }
 }
+//oled刷新
+ MENU_freshadd()
+ {
+//     MENU_freshfloat("gyro[0]",gyro[0]);
+//     MENU_freshfloat("gyro[1]",gyro[1]);
+     MENU_freshfloat("Ldesiredsp",Ldesiredspeed);
+          MENU_freshfloat("Rdesiredsp",Rdesiredspeed);
+     MENU_freshfloat("gyro[2]",gyro[2]);
+//     MENU_freshfloat("angle_x",angle_x);
+//     MENU_freshfloat("angle_y",angle_y);
+     MENU_freshfloat("angle_z",angle_z);
+
+
+     MENU_freshfloat("mode_flag",mode_flag);
+
+     MENU_freshfloat("servo_pulse",servo_pulse);
+//     MENU_freshfloat("accoffset[1]",accoffset[1]);
+//     MENU_freshfloat("accoffset[2]",accoffset[2]);
+//     MENU_freshfloat("gyrooffset[0]",gyrooffset[0]);
+//     MENU_freshfloat("gyrooffset[1]",gyrooffset[1]);
+//     MENU_freshfloat("gyrooffset[2]",gyrooffset[2]);
+
+ }
+
 
 /*定时器中断*/
 /*20ms*/
 IFX_INTERRUPT(cc60_pit_ch0_isr, 0, CCU6_0_CH0_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
-    if(gogoflag == 1){
-        leftFTM = -SmartCar_Encoder_Get(GPT12_T4);
-        rightFTM = SmartCar_Encoder_Get(GPT12_T6);
-        SmartCar_Encoder_Clear(GPT12_T4);
-        SmartCar_Encoder_Clear(GPT12_T6);
-        Motor_control();
-    }
     PIT_CLEAR_FLAG(CCU6_0, PIT_CH0);
-
+    PITMGR_Isr();
 }
-/*5ms*/
+///*5ms*/
 IFX_INTERRUPT(cc61_pit_ch1_isr, 0, CCU6_1_CH1_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
-    if(gogoflag == 1){
-        Servo_control();
-    }
+//    if(gogoflag == 1){
+//        Servo_control();
+//    }
+
 //    SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM1_1_TOUT31_P33_9_OUT,servoduty);
     PIT_CLEAR_FLAG(CCU6_1, PIT_CH1);
 }
-/*5ms*/
+///*5ms*/
 IFX_INTERRUPT(cc61_pit_ch0_isr, 0, CCU6_1_CH0_ISR_PRIORITY)
 {
     enableInterrupts();//开启中断嵌套
-    Battery_Get();
-//    Icharge_Get();
-    timeget++;
-    if(timeget >= 5000)
-        timeget = 5000;
+    FINAL_CONTROL();
     PIT_CLEAR_FLAG(CCU6_1, PIT_CH0);
 
 }
@@ -285,13 +345,23 @@ IFX_INTERRUPT(eru_ch1_ch5_isr, 0, ERU_CH1_CH5_INT_PRIO)
     {
         CLEAR_GPIO_FLAG(CH5_P15_8);
         mode++;
-        if(mode == 4)
+        if(mode == 3)
         {
             mode = 0;
         }
     }
 }
 /**/
+
+MENU_fresh()
+{
+    Delay_ms(STM0,100);
+    freshposi=0;
+    MENU_freshadd();
+    freshname=1;
+
+}
+
 
 
 #pragma section all restore

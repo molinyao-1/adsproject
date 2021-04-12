@@ -19,6 +19,7 @@
 
 
 #include "SmartCar_MPU.h"
+#include "string.h"
 //#include <IfxI2c_I2c.h>
 
 IfxI2c_I2c_Device i2cdev_handle;
@@ -79,8 +80,8 @@ void SmartCar_MPU_Gettemp1(mpu_t* my_mpu)
 
 void SmartCar_MPU_PinInit(void)
 {
-    //SmartCar_SoftI2c_PinInit();
-    SmartCar_HardwareI2c_Init(IfxI2c0_SCL_P02_5_INOUT, IfxI2c0_SDA_P02_4_INOUT, 400*1000);
+    SmartCar_SoftI2c_PinInit();
+//    SmartCar_HardwareI2c_Init(IfxI2c0_SCL_P02_5_INOUT, IfxI2c0_SDA_P02_4_INOUT, 400*1000);
 }
 
 void SmartCar_MPU_Set_DefaultConfig(mpu_t* my_mpu)
@@ -296,13 +297,13 @@ void SmartCar_MPU_Gettemp2(mpu_t* my_mpu)
 
 void SmartCar_MPU_Writereg(uint8 device_addr, uint8 reg_addr, uint8* data_addr)
 {
-    //SmartCar_SoftI2c_Writereg(device_addr, reg_addr, *data_addr);
-    SmartCar_HardwareI2c_Writereg(reg_addr, data_addr, 1);
+    SmartCar_SoftI2c_Writereg(device_addr, reg_addr, *data_addr);
+//    SmartCar_HardwareI2c_Writereg(reg_addr, data_addr, 1);
 }
 
 void SmartCar_MPU_Readregs(uint8 device_addr, uint8 reg_addr, uint8* data_addr, uint8 data_num)
 {
-    //SmartCar_SoftI2c_Readregs(device_addr, reg_addr, data_addr, data_num);
-    i2cdev_handle.deviceAddress = device_addr << 1;
-    SmartCar_HardwareI2c_Readreg(reg_addr, data_addr,data_num);
+    SmartCar_SoftI2c_Readregs(device_addr, reg_addr, data_addr, data_num);
+//    i2cdev_handle.deviceAddress = device_addr << 1;
+//    SmartCar_HardwareI2c_Readreg(reg_addr, data_addr,data_num);
 }

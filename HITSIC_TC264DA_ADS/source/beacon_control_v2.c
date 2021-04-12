@@ -8,10 +8,35 @@
 #include "image.h"
 #include "stdlib.h"
 
-#define threeorfour 0
+int angle_time = 0;
+extern int gogoflag;
+
+float init_ax = 0,init_ay = 0,init_az = 0;
+float acc_angle_x = 0,gyro_angle_x = 0;    //一阶互补的参数传递
+float angle_x = 0,angle_y = 0,angle_z = 0;
+
+float acc_x = 0,acc_y = 0,acc_z = 0;
+float gyro_x = 0,gyro_y = 0,gyro_z = 0;
+
+extern float acc[3];
+extern float gyro[3];
+
+extern float gyrolast[3];
+extern float gyronow[3];
+
+#define gyrooffset0 -4.5
+#define gyrooffset1 0
+#define gyrooffset2 -8.5
+
+static float dt = 0.005;
+
+float one_filter_angle = 0;
 
 float pulseleft;
 float pulseright;
+
+int L_time = 0; //左侧光电管计数
+int R_time = 0;
 
 int slowline ;//减速线设置
 float slowladjust = 0.7; //(菜单调节)
@@ -19,6 +44,8 @@ uint32_t servofinal;
 int speedmostfast = 80; //(菜单调节)
 int correctxishu; //修正系数,控制拟合直线上下平移
 float correctmenu = 0.2; //菜单调  (减速提前,减小)
+
+float correctspeed = 1;
 
 //(菜单调)
 int mode0limit = 10;
@@ -28,6 +55,7 @@ int reshunlimit = 40;
 /**/
 
 int side_flag = 0;
+int lightsensor_last[4] = {0};
 int lightsensor[4] = {0};
 int red_flag = 0; //光电管状态切换标志位
 int light_last = 0;
@@ -38,7 +66,7 @@ int Long_square;
 
 /*MPU接收参数*/
 float send_buf[3] = {0};
-extern mpu_t* this_mpu;
+extern mpu_t this_mpu;
 /**/
 
 /*以下为切灯系数*/
@@ -57,8 +85,8 @@ float deadgeer = 80;
 
 
 int motorstate = 0;  //(后期如果状态多的话考虑二维数组)0:加速 ；1：减速
-float Ldesiredspeed;
-float Rdesiredspeed;
+float Ldesiredspeed=0;
+float Rdesiredspeed=0;
 pid motorpir,motorpil;
 float motorbkp_R = 50,motorbki_R = 30,motorbkp_L = 50,motorbki_L = 30; //(菜单调)
 int16 leftFTM;
@@ -114,6 +142,7 @@ int error_dx = 0,error_dy = 0;           //实际灯和参考点横纵差值
 
 int long_flag = 0;    //追远灯标志位
 
+int contflag = 0;
 
 /**/
 
@@ -121,10 +150,10 @@ int long_flag = 0;    //追远灯标志位
 //int *speedA_H = &date[2][3];
 //int *klA_adjust = &date[1][3];     //偏差修正用系数(计算模拟中线时的误差修正系数)
 //int *krA_adjust = &date[1][4];
-float klA_adjust = 64.46;
-float krA_adjust = 99.69;
+float klA_adjust = 72;
+float krA_adjust = 94;
 
-int areaA_time = 10;  //连通域为0次数标志位
+int areaA_time = 0;  //连通域为0次数标志位
 //未分类（可放在beacon_control.c文件里）
 int mode_time = 0;    //记录各状态持续次数
 int Avoid_Low = 0;    //避障最小距离
@@ -138,6 +167,8 @@ extern float lightdis;
 
 int servoduty;
 
+float servocorrect;
+
 void Encoder_init()
 {
     SmartCar_Encoder_Init(GPT12_T4,IfxGpt120_T4INA_P02_8_IN,IfxGpt120_T4EUDA_P00_9_IN);  //Left
@@ -146,9 +177,8 @@ void Encoder_init()
 
 void FINAL_CONTROL()
 {
-    CAMERA_JUDGE();
-    STOP_JUDGE();
     MODE_JUDGE();
+    STOP_JUDGE();
     SIDE_JUDGE();
     ERROR();
     FIND_LIGHT();
@@ -266,27 +296,26 @@ void ERROR()
 {
     static int error_aver = 0;
     error_aver = aver_y - 94;  //y方向与镜头某一位置的偏差（好好思考其意义）
-    if((mode_flag == 3 && mode_time == 1)|| (mode_flag == 0 && go_flag == 1)/*进入追灯状态且跑车标志位为1*/ || light_change_flag == 1/*可切换切灯方向为1，认为可以进行切灯方向的变换*/) //锁死切灯位置
+    if((mode_flag == 3)|| (mode_flag == 0)/*进入追灯状态且跑车标志位为1*//* || light_change_flag == 1/*可切换切灯方向为1*/)
     {  //确定切左还是切右！！！！！！！！
-        if(light_change_flag == 1)   //临时的状态转换！！！！！！！！！！！！！！！！(具体作用还需要思考)
-        {  //在避障过程中发挥作用！！！！！！（不避障没作用）
-            if(abs(error_aver) > 10)    //临时转换状态，偏差较大，则可切换切灯方向()
-            {
-                if(error_aver > 0)
-                    light_flag = 1; //light_flag应该是切灯方向的一个标志位
-                else
-                    light_flag = -1;
-            }
-        }
-        else
-        {
+//        if(light_change_flag == 1)   //临时的状态转换！！！！！！！！！！！！！！！！(具体作用还需要思考)
+//        {  //在避障过程中发挥作用！！！！！！（不避障没作用）
+//            if(abs(error_aver) > 10)    //临时转换状态，偏差较大，则可切换切灯方向()
+//            {
+//                if(error_aver > 0)
+//                    light_flag = 1; //light_flag应该是切灯方向的一个标志位
+//                else
+//                    light_flag = -1;
+//            }
+//        }
+//        else
+//        {
             if(error_aver>0)
                 light_flag = 1;
             else
                 light_flag = -1;
-        }
-        light_change_flag = 0;
-    }
+     }
+//        light_change_flag = 0;
 //    error_dx = aver_x - origin_x;
 //    error_dy = aver_y - origin_y;
 //    distance = CarmSqrt(error_dx*error_dx + error_dy*error_dy);   //计算灯距
@@ -368,106 +397,96 @@ void ERROR()
 /***************************** 侧灯判断处理程序 *******************************/
 void SIDE_JUDGE()    //因为没有光电管，前期先不加
 {//side_flag 在车身左为-1，右为1
-    if(/*red_flag == 0&&*/mode_flag == 2&&side_flag == 0)
+    if(mode_flag == 2)
     {
-        lightsensor[0] = GPIO_Read(P15,4);
-        lightsensor[1] = GPIO_Read(P11,10);
-        lightsensor[2] = GPIO_Read(P33,7);
-        lightsensor[3] = GPIO_Read(P20,9);
-    }
+        Eru_Enable(CH0_P15_4);
+        Eru_Enable(CH4_P33_7);
+//        Eru_Enable(CH7_P20_9);
+        if(R_time>=1)
+        {
+            side_flag = -1;
+            Eru_Disable(CH0_P15_4);
+            Eru_Disable(CH4_P33_7);
+//            Eru_Disable(CH7_P20_9);
+        }
 
-    if(lightsensor[0] == 0||lightsensor[1] == 0||lightsensor[2] ==0 ||lightsensor[3] == 0){
-        if((lightsensor[0]+lightsensor[2])<=(lightsensor[1]+lightsensor[3]))
+        if(L_time>=1)
         {
-            side_flag = 1; //在左
-            lightsensor[0] = 1;
-            lightsensor[1] = 1;
-            lightsensor[2] = 1;
-            lightsensor[3] = 1;
-        }
-        else if((lightsensor[0]+lightsensor[2])>(lightsensor[1]+lightsensor[3]))
-        {
-            side_flag = -1; //在右
-            lightsensor[0] = 1;
-            lightsensor[1] = 1;
-            lightsensor[2] = 1;
-            lightsensor[3] = 1;
+            side_flag = 1;
+            Eru_Disable(CH0_P15_4);
+            Eru_Disable(CH4_P33_7);
+//            Eru_Disable(CH7_P20_9);
         }
     }
-    else if(mode_flag != 2&&areaA_time < connect_max)  //30可调整
+    else
     {
-//            red_flag = 2;
         side_flag = 0;
+        R_time = L_time = 0;
     }
-//    else if(areaA_time>100&&mode_flag == 2){
-//
-//    }
 }
-//    if(red_flag != 0&&areaA_time == 0)
-//    {
-//        red_flag = 0;
-//    }
-//    if(side_flag != 0&&mode_flag!=2)
-//    {
-//        side_flag = 0;
-//    }
-//    if(mode_flag == 2&&side_flag == 0)
-//    {
-//        side_flag = light_last;
-//    }
-
 /******************************* 灭找亮程序（灭完灯后找下一个灯） **********************************/
 void FIND_LIGHT()
 {
-    servodirection = 0;
-    if(roll_time < 600) //旋转次数小于某一值
+    if(mode_flag !=2)
     {
-        if(mode_flag == 2)  //结束近灯处于灭灯旋转状态
+    servodirection = 0;
+    }
+    else if(mode_flag == 2)  //结束近灯处于灭灯旋转状态
+    {
+        if(light_flag == 0)
         {
-            if((light_flag == -1&&side_flag == -1)||(light_flag == 1&&side_flag == -1))   //切右灯在右边,切左灯在右边
+            if(side_flag != 0)
             {
-                servodirection = -1;  //向右打死舵机转弯
+                switch(side_flag){
+                    case 1:servodirection = 1;break;
+                    case -1:servodirection = -1;break;
+                    default:break;
+                }
             }
-            else if((light_flag == 1&&side_flag == 1)||(light_flag == -1&&side_flag == 1)) //切左灯在左边,切右灯在左边
-            {
-                servodirection = 1;  //向左打死舵机转弯
-            }
-            else
-            {
+        }
+        if((light_flag == -1&&side_flag == -1)||(light_flag == 1&&side_flag == -1))   //切右灯在右边,切左灯在右边
+        {
+            servodirection = -1;  //向右打死舵机转弯
+        }
+        else if((light_flag == 1&&side_flag == 1)||(light_flag == -1&&side_flag == 1)) //切左灯在左边,切右灯在左边
+        {
+            servodirection = 1;  //向左打死舵机转弯
+        }
+        if(servodirection == 0)
+        {
+            contflag++;
+        }
+        else if(servodirection!=0)
+        {
+            contflag = 0;
+        }
+        if(contflag == 3)
+        {
 //                if(light_flag == 0){
 //                switch(light_flag){
 //                  case 1:servodirection = -1;break;
 //                  case -1:servodirection = 1;break;
 //                  default:break;
 //                    }
-                //}
-                if(side_flag != 0)
-                {
-                    switch(side_flag){
-                        case 1:servodirection = 1;break;
-                        case -1:servodirection = -1;break;
-                        default:break;
-                    }
-                }
-                else
-                {
-                    switch(light_flag){
-                    case 1:servodirection = -1;break;
-                    case -1:servodirection = 1;break;
+            //}
+            if(side_flag != 0)
+            {
+                switch(side_flag){
+                    case 1:servodirection = 1;break;
+                    case -1:servodirection = -1;break;
                     default:break;
                 }
             }
-//        else if(mode_flag == 2)  //初始看不到灯的情况下一律左旋
-//        {
-//            servodirection = -1;
-//        }
-//    else  //后期是给光电管准备(不管侧灯程序是否开启,均开启观点管，现在好像没什么用)
-//    {
-//
-//    }
-    }
-}
-}
+            else
+            {
+                switch(light_flag){
+                case 1:servodirection = -1;break;
+                case -1:servodirection = 1;break;
+                default:break;
+                }
+            }
+        }
+       }
 }
 
 //舵机控制
@@ -501,6 +520,11 @@ void Servo_control()
         //四轮车顺正状态和追灯状态共用一个舵机控制方法 //也需要优化更改,舵机打角与速度挂钩
         servo_pid.kp = servokp;
         servo_pid.kd = servokd;
+        if(mode_flag == 3)
+        {
+            servo_pid.kp = servokp*servocorrect;
+            servo_pid.kd = servokd*servocorrect;
+        }
         servo_pid.errPrev = servo_pid.errCurr;
         servo_pid.errCurr = (float)error_simu;
         servo_pid.errDiff = servo_pid.errCurr - servo_pid.errPrev;
@@ -516,12 +540,24 @@ void Servo_control()
             servo_pulse = -80;
         }
         servofinal = (uint32_t)(570-servo_pulse);
-        SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM1_1_TOUT31_P33_9_OUT,(uint32_t)(570-servo_pulse));
-    }
+        if(gogoflag == 1)
+        {
+            SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM1_1_TOUT31_P33_9_OUT,(uint32_t)(570-servo_pulse));
+        }
+     }
 }
 
 void Motor_control()
 {
+    if(gogoflag == 1)
+    {
+    leftFTM = -SmartCar_Encoder_Get(GPT12_T4);
+    rightFTM = SmartCar_Encoder_Get(GPT12_T6);
+    SmartCar_Encoder_Clear(GPT12_T4);
+    SmartCar_Encoder_Clear(GPT12_T6);
+
+      Imudataprocess();//获取车身当前与水平面夹角
+
     if(mode_flag == 0||mode_flag == 1||mode_flag == 3) // 除灭灯状态，其余状态计算电机的减速线
     {
         slowline = (int)(120-(leftFTM + rightFTM)*correctmenu);
@@ -529,32 +565,108 @@ void Motor_control()
             LOW = 25;
         else if(slowline>60)
             LOW = 60;
-        if((aver_x>slowline)&&(mode_flag == 1||mode_flag == 3))
+        if((aver_x>slowline))
         {
             Ldesiredspeed = (float)slowspeedwant;
             Rdesiredspeed = (float)slowspeedwant;
         }
         else //灯在减速线以上 , 速度和舵机打角用高次函数挂钩
         {
-            Ldesiredspeed = (float)(slowspeedwant+speedmostfast*pow((abs(servo_pulse)-80),2)/pow(80,2));
-            Rdesiredspeed = (float)(slowspeedwant+speedmostfast*pow((abs(servo_pulse)-80),2)/pow(80,2));
+            Ldesiredspeed = (float)(slowspeedwant+speedmostfast*((abs(servo_pulse)-80)*(abs(servo_pulse)-80))/6400);
+            Rdesiredspeed = (float)(slowspeedwant+speedmostfast*((abs(servo_pulse)-80)*(abs(servo_pulse)-80))/6400);
 //            Ldesiredspeed = (float)slowspeedwant;
 //            Rdesiredspeed = (float)slowspeedwant;
         }
+
+        /*NEW ITEM*/
+//        if(servo_pulse > 20)
+//        {
+//            if(servo_pulse>25)
+//            {
+//                Rdesiredspeed = (Rdesiredspeed)*((0.25*servo_pulse*servo_pulse-4876*servo_pulse+1020000)/1000000*correctspeed);
+//
+//         //       Ldesiredspeed = (Ldesiredspeed)*((0.000002354*servo_pulse*servo_pulse-0.00485*servo_pulse+0.9837)/correctspeed);
+//
+//            }
+//            else
+//            {
+//                Rdesiredspeed = (Rdesiredspeed)*((0.25*servo_pulse*servo_pulse-4876*servo_pulse+1020000)/1000000);
+//
+//
+// //               Ldesiredspeed = (Ldesiredspeed)*((0.000002354*servo_pulse*servo_pulse-0.00485*servo_pulse+0.9837));
+//            }
+//        }
+//        else if(servo_pulse<-20) //左
+//        {
+//            if(servo_pulse<-25)
+//            {
+//
+//                Ldesiredspeed = (Ldesiredspeed)*((0.2354*servo_pulse*servo_pulse+485*servo_pulse+98370)/100000*correctspeed);
+//
+//
+////                Rdesiredspeed = (Rdesiredspeed)*((0.00000025*servo_pulse*servo_pulse+0.004876*servo_pulse+1.02)/correctspeed);
+//            }
+//            else
+//            {
+//                Ldesiredspeed = (Ldesiredspeed)*((0.2354*servo_pulse*servo_pulse+485*servo_pulse+98370)/100000);
+//
+////                Rdesiredspeed = (Rdesiredspeed)*((0.00000025*servo_pulse*servo_pulse+0.004876*servo_pulse+1.02));
+//            }
+//        }
+        /**/
     }
-    else //看不到灯
+    else if(mode_flag == 2)//看不到灯
     {
-        if(servodirection == 1)
+        Ldesiredspeed = slowspeedwant;
+        Rdesiredspeed = slowspeedwant;
+        if(servodirection == 1) //左转
         {
-            Ldesiredspeed = (float)slowspeedwant*0.6;
-            Rdesiredspeed = (float)slowspeedwant;
+            if(abs((int)angle_z)<=80)
+            {
+                Ldesiredspeed =Ldesiredspeed*0.5*(1+(0.2354*deadgeer*deadgeer-485*deadgeer+98370)/100000*correctspeed);
+            }
+            else
+            {
+                Ldesiredspeed = Ldesiredspeed/correctspeed;//Ldesiredspeed*0.5*(1+(0.2354*deadgeer*deadgeer-485*deadgeer+98370)/100000);
+            }
+            Rdesiredspeed = 2*slowspeedwant-Ldesiredspeed;
+          //  Ldesiredspeed =Ldesiredspeed*0.5*(1+(0.2354*deadgeer*deadgeer-485*deadgeer+98370)/100000*correctspeed);
+
         }
         else if(servodirection == -1)
         {
+            if(abs((int)angle_z)<=80)
+            {
+                Rdesiredspeed = (Rdesiredspeed)*0.5*(1+(0.25*deadgeer*deadgeer-4876*deadgeer+1020000)/1000000*correctspeed);
+            }
+            else
+            {
+                Rdesiredspeed = Rdesiredspeed/correctspeed;///(Rdesiredspeed)*0.5*(1+(0.25*deadgeer*deadgeer-4876*deadgeer+1020000)/1000000);
+            }
+            Ldesiredspeed = 2*slowspeedwant-Rdesiredspeed;
+        }
+        else
+        {
             Ldesiredspeed = (float)slowspeedwant;
-            Rdesiredspeed = (float)slowspeedwant*0.6;
+            Rdesiredspeed = (float)slowspeedwant;
         }
     }
+//    if(Ldesiredspeed >120)
+//    {
+//        Ldesiredspeed = 120;
+//    }
+//    if(Rdesiredspeed>120)
+//    {
+//        Rdesiredspeed = 120;
+//    }
+//    if(Ldesiredspeed<=0)
+//    {
+//        Ldesiredspeed = 0;
+//    }
+//    if(Rdesiredspeed<=0)
+//    {
+//        Rdesiredspeed = 0;
+//    }
     //Motorpid_control();
 //        Motorbpi_Get(Ldesiredspeed,Rdesiredspeed);
         //舵机打角大的时候减小电机速度的控制强度
@@ -625,6 +737,7 @@ void Motor_control()
             SmartCar_Gtm_Pwm_Setduty(&IfxGtm_ATOM0_3_TOUT56_P21_5_OUT,0);
         }
     }
+    }
 }
 
 
@@ -635,10 +748,10 @@ void STOP_JUDGE()
         roll_time = 0;
     else
         roll_time ++;
-    if(roll_time > 666)  //设为0则会长时间无灯停车
+    if(roll_time > 5000)  //设为0则会长时间无灯停车
     {
         go_flag = 0;
-        roll_time = 700;
+        roll_time = 5000;
     }
 }
 
@@ -665,6 +778,69 @@ float CarmSqrt(float x){
 
 
 /**/
+
+//IMU
+void Imudata_get()
+{
+    SmartCar_MPU_Getacc2(&this_mpu);
+    SmartCar_MPU_Getgyro2(&this_mpu);
+    acc[0] = this_mpu.mpu_rawdata.acc_x;
+    acc[1] = this_mpu.mpu_rawdata.acc_y;
+    acc[2] = this_mpu.mpu_rawdata.acc_z;
+
+    gyro[0] = this_mpu.mpu_rawdata.gyro_x;
+    gyro[1] = this_mpu.mpu_rawdata.gyro_y;
+    gyro[2] = this_mpu.mpu_rawdata.gyro_z;
+
+    if(gyro[0]<-4.2&&gyro[0]>-4.8)
+    {
+        gyro[0] = -4.5;
+    }
+
+    if(gyro[1]<0.5&&gyro[1]>-0.5)
+    {
+        gyro[1] = 0;
+    }
+
+    if(gyro[2]<-8.2&&gyro[2]>-8.8)
+    {
+        gyro[2] = -8.5;
+    }
+}
+
+void Imudataprocess()
+{
+    SmartCar_MPU_Getacc2(&this_mpu);
+    SmartCar_MPU_Getgyro2(&this_mpu);
+//    gyro[0] = this_mpu.mpu_rawdata.gyro_x;
+//    gyro[1] = this_mpu.mpu_rawdata.gyro_y;
+    gyronow[2] = this_mpu.mpu_rawdata.gyro_z;
+//    if(gyro[0]<-4.2&&gyro[0]>-4.8)
+//    {
+//        gyro[0] = -4.5;
+//    }
+//
+//    if(gyro[1]<0.5&&gyro[1]>-0.5)
+//    {
+//        gyro[1] = 0;
+//    }
+
+    if(gyronow[2]<-8.2&&gyronow[2]>-8.8)
+    {
+        gyronow[2] = -8.5;
+    }
+    gyrolast[2] = gyro[2];
+    gyro[2] = 0.8*gyronow[2]+0.2*gyrolast[2];
+//    angle_x += (gyro[0]-gyrooffset0)*dt;
+//    angle_y += (gyro[1]-gyrooffset1)*dt;
+    if((abs(servo_pulse)>40)||(mode_flag == 2))
+        angle_z += (gyronow[2]-gyrooffset2)*dt;
+    else
+        angle_z = 0;
+
+
+}
+
 
 
 

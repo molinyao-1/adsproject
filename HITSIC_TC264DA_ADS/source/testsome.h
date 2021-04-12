@@ -24,7 +24,6 @@
 #include "SmartCar_Encoder.h"
 #include "SmartCar_Upload.h"
 #include "SmartCar_ADC.h"
-#include "lib_pidctrl.h"
 #include "common.h"
 
 void Encoder_get();

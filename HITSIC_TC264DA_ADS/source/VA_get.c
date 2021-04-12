@@ -13,7 +13,11 @@ float battery = 0;
 float battery_last = 0;
 float battery_prelast = 0;
 float Icharge;
+extern int gogoflag;
 
+float batterylimit = 9;
+
+int statusgo = 1 ;
 
 void Battery_Get()
 {
@@ -30,6 +34,10 @@ void Battery_Get()
          battery += (float)Battery_Temp[k];
     }
     battery = (battery/24)/255*3.3*6;//求平均值并进行补正
+    if(battery>batterylimit)
+    {
+        gogoflag = 1;
+    }
 }
 
 void Icharge_Get()

@@ -6,48 +6,52 @@
 C_SRCS += \
 ../source/Cpu0_Main.c \
 ../source/Cpu1_Main.c \
+../source/EMIT_List.c \
+../source/EMIT_Pitmgr.c \
 ../source/SmartCar_Isr.c \
 ../source/VA_get.c \
 ../source/beacon_control.c \
 ../source/beacon_control_v2.c \
 ../source/image.c \
-../source/lib_pidctrl.c \
 ../source/menu.c \
 ../source/testsome1.c 
 
 OBJS += \
 ./source/Cpu0_Main.o \
 ./source/Cpu1_Main.o \
+./source/EMIT_List.o \
+./source/EMIT_Pitmgr.o \
 ./source/SmartCar_Isr.o \
 ./source/VA_get.o \
 ./source/beacon_control.o \
 ./source/beacon_control_v2.o \
 ./source/image.o \
-./source/lib_pidctrl.o \
 ./source/menu.o \
 ./source/testsome1.o 
 
 COMPILED_SRCS += \
 ./source/Cpu0_Main.src \
 ./source/Cpu1_Main.src \
+./source/EMIT_List.src \
+./source/EMIT_Pitmgr.src \
 ./source/SmartCar_Isr.src \
 ./source/VA_get.src \
 ./source/beacon_control.src \
 ./source/beacon_control_v2.src \
 ./source/image.src \
-./source/lib_pidctrl.src \
 ./source/menu.src \
 ./source/testsome1.src 
 
 C_DEPS += \
 ./source/Cpu0_Main.d \
 ./source/Cpu1_Main.d \
+./source/EMIT_List.d \
+./source/EMIT_Pitmgr.d \
 ./source/SmartCar_Isr.d \
 ./source/VA_get.d \
 ./source/beacon_control.d \
 ./source/beacon_control_v2.d \
 ./source/image.d \
-./source/lib_pidctrl.d \
 ./source/menu.d \
 ./source/testsome1.d 
 

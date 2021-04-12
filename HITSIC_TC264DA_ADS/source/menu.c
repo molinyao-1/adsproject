@@ -25,6 +25,9 @@ int ichangeadd = 1;
 float fchangeadd = 1;
 int changej = 0;
 
+int freshposi;
+int freshname;
+
 extern float slowladjust; //(菜单调节)
 extern int speedmostfast;
 extern int slowspeedwant;
@@ -42,7 +45,10 @@ extern float klA_adjust;
 extern float krA_adjust;
 extern float correctmenu;
 
+extern float correctspeed;
 extern int servoduty;
+extern float servocorrect;
+extern float batterylimit;
 
 void Menu_gpioinit()
 {
@@ -52,6 +58,9 @@ void Menu_gpioinit()
     GPIO_Init(P20,13,PULLUP,1);
     GPIO_Init(P20,14,PULLUP,1);
 }
+
+
+
 /*
  * 菜单项添加
  */
@@ -63,7 +72,6 @@ void MENU_listmmc()
     MENU_add(correctlimit, 0, 2, "correctlimit");
     MENU_add(LOWplus, 0, 2, "LOWplus");
     MENU_add(reshunlimit, 0, 2, "reshunlimit");
-    MENU_add(servoduty, 0, 2, "servoduty");
 
     //    MENU_add(20, 0, 2, "mmld");
 //    MENU_add(20, 0, 2, "mldfd");
@@ -75,10 +83,14 @@ void MENU_listmmc()
     MENU_add(0, motorbki_R, 3, "motorbki_R");
     MENU_add(0, motorbkp_L, 3, "motorbkp_L");
     MENU_add(0, motorbki_L, 3, "motorbki_L");
-    MENU_add(0, slowladjust, 3, "slowladjust");
+//    MENU_add(0, slowladjust, 3, "slowladjust");
     MENU_add(0, klA_adjust, 3, "klA_adjust");
     MENU_add(0, krA_adjust, 3, "krA_adjust");
     MENU_add(0, correctmenu, 3, "correctmenu");
+    MENU_add(0,correctspeed,3, "correctspeed");
+    MENU_add(0,servocorrect,3, "servocorrect");
+    MENU_add(0,batterylimit,3, "batterylimit");
+
 
 
 }
@@ -96,7 +108,6 @@ void MENU_give()
     correctlimit=menu_node[14].dataint;
     LOWplus=menu_node[15].dataint;
     reshunlimit=menu_node[16].dataint;
-    servoduty = menu_node[17].dataint;
 
     servokp=menu_node[42].datafloat;
     servokd=menu_node[43].datafloat;
@@ -104,10 +115,14 @@ void MENU_give()
     motorbki_R=menu_node[45].datafloat;
     motorbkp_L=menu_node[46].datafloat;
     motorbki_L=menu_node[47].datafloat;
-    slowladjust = menu_node[48].datafloat;
-    klA_adjust = menu_node[49].datafloat;
-    krA_adjust = menu_node[50].datafloat;
-    correctmenu = menu_node[51].datafloat;
+//    slowladjust = menu_node[48].datafloat;
+    klA_adjust = menu_node[48].datafloat;
+    krA_adjust = menu_node[49].datafloat;
+    correctmenu = menu_node[50].datafloat;
+    correctspeed = menu_node[51].datafloat;
+    servocorrect = menu_node[52].datafloat;
+    batterylimit = menu_node[53].datafloat;
+
 
 }
 
@@ -660,5 +675,22 @@ void MENU_storage()
         Sector_Program(k,buff1);
     }
     MENU_give();
+}
+
+void MENU_freshint(char *nam,int numm)
+{
+    if(freshposi==0&&freshname==0)    SmartCar_OLED_Fill(0);
+    if (freshname==0)   SmartCar_OLED_P6x8Str(5,freshposi,nam);
+    SmartCar_OLED_P6x8Str(60, freshposi, "            ");
+    SmartCar_OLED_Printf6x8(60,freshposi,"%d",numm);
+    freshposi++;
+}
+void MENU_freshfloat(char *nam,float numm)
+{
+    if(freshposi==0&&freshname==0)    SmartCar_OLED_Fill(0);
+    if(freshname==0)   SmartCar_OLED_P6x8Str(5,freshposi,nam);
+    SmartCar_OLED_P6x8Str(60, freshposi, "            ");
+    SmartCar_OLED_Printf6x8(60,freshposi,"%.4f",numm);
+    freshposi++;
 }
 

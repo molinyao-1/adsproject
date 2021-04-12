@@ -2,6 +2,18 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 beacon_control_v2.o :	../source/beacon_control_v2.c
 ../source/beacon_control_v2.c :
 beacon_control_v2.o :	../source/beacon_control.h
@@ -44,16 +56,18 @@ beacon_control_v2.o :	../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h
 ../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h :
 beacon_control_v2.o :	../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h
 ../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h :
-beacon_control_v2.o :	../SmartCar/SmartCar_EruDma.h
-../SmartCar/SmartCar_EruDma.h :
-beacon_control_v2.o :	../SmartCar/SmartCar_Eru.h
-../SmartCar/SmartCar_Eru.h :
 beacon_control_v2.o :	../SmartCar/common.h
 ../SmartCar/common.h :
 beacon_control_v2.o :	../source/Cpu0_Main.h
 ../source/Cpu0_Main.h :
 beacon_control_v2.o :	../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h
 ../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h :
+beacon_control_v2.o :	../SmartCar/SmartCar_EruDma.h
+../SmartCar/SmartCar_EruDma.h :
+beacon_control_v2.o :	../SmartCar/SmartCar_Eru.h
+../SmartCar/SmartCar_Eru.h :
+beacon_control_v2.o :	../SmartCar/common.h
+../SmartCar/common.h :
 beacon_control_v2.o :	../SmartCar/SmartCar_Systick.h
 ../SmartCar/SmartCar_Systick.h :
 beacon_control_v2.o :	../SmartCar/common.h
@@ -84,8 +98,6 @@ beacon_control_v2.o :	../SmartCar/common.h
 ../SmartCar/common.h :
 beacon_control_v2.o :	../SmartCar/SmartCar_Upload.h
 ../SmartCar/SmartCar_Upload.h :
-beacon_control_v2.o :	../source/lib_pidctrl.h
-../source/lib_pidctrl.h :
 beacon_control_v2.o :	../SmartCar/common.h
 ../SmartCar/common.h :
 beacon_control_v2.o :	../source/image.h

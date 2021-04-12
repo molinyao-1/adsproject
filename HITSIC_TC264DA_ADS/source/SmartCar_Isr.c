@@ -1,6 +1,9 @@
 #include "SmartCar_Isr.h"
 #include "SmartCar_Eru.h"
+#include "beacon_control.h"
 
+extern int R_time;
+extern int L_time;
             /*pwm有关中断*/
 
 
@@ -16,11 +19,29 @@ IFX_INTERRUPT(eru_ch3_ch7_isr, 0, ERU_CH3_CH7_INT_PRIO)
         //else if (1 == camera_type)  ;
 
     }
-    if(GET_GPIO_FLAG(CH7_P15_1))//通道7中断
+    if(GET_GPIO_FLAG(CH7_P20_9))//通道7中断
     {
-        CLEAR_GPIO_FLAG(CH7_P15_1);
+        CLEAR_GPIO_FLAG(CH7_P20_9);
+//        R_time++;
+
     }
 }
+
+IFX_INTERRUPT(eru_ch0_ch4_isr, 0, ERU_CH0_CH4_INT_PRIO)
+{
+    enableInterrupts();//开启中断嵌套
+    if(GET_GPIO_FLAG(CH0_P15_4))//通道1中断
+    {
+        CLEAR_GPIO_FLAG(CH0_P15_4);
+        L_time++;
+    }
+    if(GET_GPIO_FLAG(CH4_P33_7))//通道5中断
+    {
+        CLEAR_GPIO_FLAG(CH4_P33_7);
+        L_time++;
+    }
+}
+
 IFX_INTERRUPT(dma_ch5_isr, 0, ERU_DMA_INT_PRIO)
 {
     enableInterrupts();//开启中断嵌套
@@ -32,7 +53,8 @@ IFX_INTERRUPT(dma_ch5_isr, 0, ERU_DMA_INT_PRIO)
         mt9v034_finish_flag = 0;
         THRE();
         image_main();
-        FINAL_CONTROL();
+        CAMERA_JUDGE();
+
     }
 }
             /*spi有关dma中断*/

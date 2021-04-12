@@ -44,6 +44,8 @@ void MENU_give();
 
 void MENU_changeint(int changenum);
 void MENU_changefloat(float changenum);
+void MENU_freshint(char *nam,int numm);
+void MENU_freshfloat(char *nam,float numm);
 
 
 #endif

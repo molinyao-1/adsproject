@@ -27,6 +27,33 @@
 #include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "SmartCar_Uart.h"
+#include "SmartCar_Upload.h"
+#include "SmartCar_Oled.h"
+#include "SmartCar_Pwm.h"
+#include "SmartCar_MPU.h"
+#include "SmartCar_MT9V034.h"
+#include "SmartCar_Systick.h"
+#include "SmartCar_GPIO.h"
+#include "SmartCar_PIT.h"
+#include "SmartCar_Encoder.h"
+#include "SmartCar_ADC.h"
+#include "common.h"
+#include "image.h"
+#include "menu.h"
+#include "beacon_control.h"
+#include "testsome.h"
+#include "VA_get.h"
+#include "EMIT_Pitmgr.h"
+#include "EMIT_List.h"
+#include "SmartCar_Assert.h"
+
+
+
+extern float angle_z;
+extern float battery;
+extern float gyro[3];
+extern float myvar[20];
 
 extern IfxCpu_syncEvent g_cpuSyncEvent;
 
@@ -38,13 +65,19 @@ int core1_main(void)
      * Enable the watchdog and service it periodically if it is required
      */
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
-    
+
+    SmartCar_Uart_Init(IfxAsclin0_TX_P14_0_OUT,IfxAsclin0_RXA_P14_1_IN,921600,0);
+
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
     
     while(1)
     {
-    }
+        myvar[0] = gyro[2];
+        myvar[1] = angle_z;
+        myvar[2] = battery;
+        SmartCar_VarUpload(&myvar,9);
 
+    }
 }

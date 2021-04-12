@@ -10,6 +10,34 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 Cpu0_Main.o :	../source/Cpu0_Main.c
 ../source/Cpu0_Main.c :
 Cpu0_Main.o :	../Configurations/Ifx_Cfg.h
@@ -50,16 +78,18 @@ Cpu0_Main.o :	../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h
 ../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h :
 Cpu0_Main.o :	../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h
 ../Libraries/Service/CpuGeneric/_Utilities/Ifx_Assert.h :
-Cpu0_Main.o :	../SmartCar/SmartCar_EruDma.h
-../SmartCar/SmartCar_EruDma.h :
-Cpu0_Main.o :	../SmartCar/SmartCar_Eru.h
-../SmartCar/SmartCar_Eru.h :
 Cpu0_Main.o :	../SmartCar/common.h
 ../SmartCar/common.h :
 Cpu0_Main.o :	../source/Cpu0_Main.h
 ../source/Cpu0_Main.h :
 Cpu0_Main.o :	../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h
 ../Libraries/Service/CpuGeneric/SysSe/Bsp/Bsp.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_EruDma.h
+../SmartCar/SmartCar_EruDma.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Eru.h
+../SmartCar/SmartCar_Eru.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
 Cpu0_Main.o :	../SmartCar/SmartCar_Systick.h
 ../SmartCar/SmartCar_Systick.h :
 Cpu0_Main.o :	../SmartCar/common.h
@@ -150,8 +180,6 @@ Cpu0_Main.o :	../SmartCar/SmartCar_Encoder.h
 ../SmartCar/SmartCar_Encoder.h :
 Cpu0_Main.o :	../SmartCar/SmartCar_Upload.h
 ../SmartCar/SmartCar_Upload.h :
-Cpu0_Main.o :	../source/lib_pidctrl.h
-../source/lib_pidctrl.h :
 Cpu0_Main.o :	../SmartCar/common.h
 ../SmartCar/common.h :
 Cpu0_Main.o :	../source/testsome.h
@@ -186,3 +214,17 @@ Cpu0_Main.o :	../SmartCar/SmartCar_Pwm.h
 ../SmartCar/SmartCar_Pwm.h :
 Cpu0_Main.o :	../SmartCar/SmartCar_ADC.h
 ../SmartCar/SmartCar_ADC.h :
+Cpu0_Main.o :	../source/EMIT_Pitmgr.h
+../source/EMIT_Pitmgr.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_PIT.h
+../SmartCar/SmartCar_PIT.h :
+Cpu0_Main.o :	../source/EMIT_List.h
+../source/EMIT_List.h :
+Cpu0_Main.o :	../SmartCar/common.h
+../SmartCar/common.h :
+Cpu0_Main.o :	../SmartCar/SmartCar_Assert.h
+../SmartCar/SmartCar_Assert.h :
+Cpu0_Main.o :	../source/EMIT_List.h
+../source/EMIT_List.h :
