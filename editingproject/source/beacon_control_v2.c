@@ -220,6 +220,9 @@ int speedmarkB = 0; //0:高速 1:中速 2:低速
 float correctspeed =0.8;
 float leftcorrect = 1;
 float rightcorrect = 1;
+float correctspeed1 =0.8;
+float leftcorrect1 = 1;
+float rightcorrect1 = 1;
 
 int dislimitA = 85;
 int dislimitB = 85;
@@ -286,164 +289,84 @@ void CAMERA_JUDGE()
         averB_y = last_averB_y;
     }
 
-    if(1 == Camera)
-        areaB_time = 100;
-    else if(2 == Camera)
-        areaA_time = 100;
-
-    camera_last = camera_flag;
-
-    //无灯时可选择切换摄像头,有死区(初始camera_flag不需要更改,会自己修正)
-    if(mode_flag == 2)
-    {
-        if(back_flag ==0||(camera_last == 0&&abs(averB_x-backmiddle)<Blimit)||(camera_last == 1&&abs(averA_x-formiddle)<Alimit)||roll_time>300)
-        {
-            if(camera_last == 0&&areaB_time == 0)
-            {
-                camera_flag = 1;
-            }
-            else if(camera_last == 1&&areaA_time == 0)
-            {
-                camera_flag = 0;
-            }
-        }
-    }
-
-    /*选择双摄或者双摄单头时的转小弯逻辑*/
-    static int error_temp = 0;
-    if(camera_flag!=camera_last)
-    {
-        if(camera_last == 0)
-        {
-            error_temp = averB_y-backmiddle;
-            if(abs(error_temp)>errormaxB||Camera == 3)
-            {
-                camera_flag = camera_last;
-                if(error_temp>0)
-                    back_flag = 1;//左转
-                else
-                    back_flag = -1;
-            }
-        }
-        else if(camera_last == 1)
-        {
-            error_temp = averA_y-formiddle;
-            if(abs(error_temp)>errormaxA||Camera == 4)
-            {
-                camera_flag = camera_last;
-                if(error_temp>0)
-                    back_flag = -1;//右转
-                else
-                    back_flag = 1;
-            }
-        }
-        if(Camera == 3)
-            camera_flag = 0;
-        else if(Camera == 4)
-            camera_flag = 1;
-    }
-
     if(camera_flag == 0)
-    {
-        aver_x = averA_x;
-        aver_y = averA_y;
-        error_dx = averA_x - originA_x;
-        error_dy = averA_y - originA_y;
-        distance =  lightdis;//CarmSqrt((float)(error_dx*error_dx + error_dy*error_dy));   //计算灯距
-        speedever = (leftFTM+rightFTM)/20;
-        /*速度分段*/
-        if(averA_x<lowlimit0A&&(averA_x+speedever)<lowlimit1A)
-        {
-//            GPIO_Set(P20,9,0);
-            speedmarkA = 0;
-        }
+     {
+         aver_x = averA_x;
+         aver_y = averA_y;
+         error_dx = averA_x - originA_x;
+         error_dy = averA_y - originA_y;
+         distance =  lightdis;//CarmSqrt((float)(error_dx*error_dx + error_dy*error_dy));   //计算灯距
+         speedever = (leftFTM+rightFTM)/20;
+         /*速度分段*/
+         if(averA_x<lowlimit0A&&(averA_x+speedever)<lowlimit1A)
+         {
+ //            GPIO_Set(P20,9,0);
+             speedmarkA = 0;
+         }
 
-        else
-        {
-            if(averA_x<=lowlimit2A)
-            {
-                speedmarkA = 1;
-//                GPIO_Set(P20,9,0);
-            }
-        }
+         else
+         {
+             if(averA_x<=lowlimit2A)
+             {
+                 speedmarkA = 1;
+ //                GPIO_Set(P20,9,0);
+             }
+         }
 
-        if((averA_x>lowlimit2A&&(averA_x+speedever)>lowlimit3A)||averA_x>lowlimit4A)
-        {
-//            GPIO_Set(P20,9,1);
-            speedmarkA = 2;
-        }
-    }
-    else if(camera_flag == 1)
-    {
-        aver_x = averB_x;
-        aver_y = averB_y;
-        error_dx = averB_x - originB_x;
-        error_dy = averB_y - originB_y;
-        distance = dis2;//CarmSqrt((float)(error_dx*error_dx + error_dy*error_dy));   //计算灯距
-        speedever = (leftFTM+rightFTM)/20;
-       /*速度分段*/
-        if(averB_x<lowlimit0B&&(averB_x+speedever)<lowlimit1B)
-        {
-            speedmarkB = 0;
-        }
-
-        else
-        {
-            if(averB_x<=lowlimit2B)
-                speedmarkB = 1;
-        }
-
-        if((averB_x>lowlimit2B&&(averB_x+speedever)>lowlimit3B)||averB_x>lowlimit4B)
-        {
-            speedmarkB = 2;
-        }
-   }
+         if((averA_x>lowlimit2A&&(averA_x+speedever)>lowlimit3A)||averA_x>lowlimit4A)
+         {
+ //            GPIO_Set(P20,9,1);
+             speedmarkA = 2;
+         }
+     }
 }
+
 
 
 /***************************** 状态判断处理程序 *******************************/
 void MODE_JUDGE()
 {
     /*状态机*/
-    if(0 == mode_flag&&((camera_flag ==0&&distance<dislimitA)||(camera_flag ==1&&distance<dislimitB)))
+    if(0 == mode_flag&&((camera_flag ==0&&distance<dislimitA)||speedmarkA == 2))
     {
         mode_last = mode_flag;
         mode_flag = 1;
         mode_time = 0;
+        back_flag = 0;
     }
-    if(1 == mode_flag&&((camera_flag ==0&&distance>(dislimitA+35))||(camera_flag ==1&&distance>(dislimitB+35)))) //灯被对手灭,远处还有灯,判定的两次距离差,并且大于此阈值就转换状态
-    {
-        mode_last = mode_flag;
-        mode_flag = 0;
-        mode_time = 0;
-        back_flag = 1;
-    }
-    if(1 == mode_flag&&battery<balowlimit) //处于近灯状态,并且电压不够
-    {
-        mode_last = mode_flag;
-        mode_flag = 3;
-        mode_time = 0;
-    }
-    if(3 == mode_flag&&(battery>bauplimit)&&((camera_flag ==0&&areaA_time>connect_max)||(camera_flag ==1&&areaB_time>connect_max))) //无灯且充电满
-    {
-        mode_last = mode_flag;
-        mode_flag = 2;
-        mode_time = 0;
-    }
-    if(3 == mode_flag&&(battery>bauplimit)&&((camera_flag ==0&&areaA_time==0)||(camera_flag ==1&&areaB_time==0)))
+    if(1 == mode_flag&&((camera_flag ==0&&distance>(dislimitA+18))||speedmarkA ==0||speedmarkA == 1)) //灯被对手灭,远处还有灯,判定的两次距离差,并且大于此阈值就转换状态
     {
         mode_last = mode_flag;
         mode_flag = 0;
         mode_time = 0;
         back_flag = 0;
     }
-    if(mode_flag !=2 &&((camera_flag ==0&&areaA_time>connect_max)||(camera_flag ==1&&areaB_time>connect_max)))
+//    if((1 == mode_flag)&&battery<balowlimit) //处于近灯状态,并且电压不够
+//    {
+//        mode_last = mode_flag;
+//        mode_flag = 3;
+//        mode_time = 0;
+//    }
+//    if(3 == mode_flag&&(battery>bauplimit)&&((camera_flag ==0&&areaA_time>connect_max))) //无灯且充电满
+//    {
+//        mode_last = mode_flag;
+//        mode_flag = 2;
+//        mode_time = 0;
+//    }
+//    if(3 == mode_flag&&(battery>bauplimit)&&((camera_flag ==0&&areaA_time==0)))
+//    {
+//        mode_last = mode_flag;
+//        mode_flag = 0;
+//        mode_time = 0;
+//        back_flag = 0;
+//    }
+    if(mode_flag !=2 &&((camera_flag ==0&&areaA_time>connect_max)))
     {
         mode_last = mode_flag;
         mode_flag = 2;
         mode_time = 0;
     }
-    if(2 == mode_flag&&((camera_flag ==0&&areaA_time==0)||(camera_flag ==1&&areaB_time==0)))
+    if(2 == mode_flag&&((camera_flag ==0&&areaA_time==0)))
     {
         mode_last = mode_flag;
         mode_flag = 0;
@@ -451,8 +374,27 @@ void MODE_JUDGE()
         back_flag = 0;
     }
     mode_time++; //mode_time最少是1！！！！(记录着一个状态持续时间)
-}
 
+    //无灯时可选择切换摄像头,有死区(初始camera_flag不需要更改,会自己修正)
+    if(mode_flag == 2)
+    {
+        if(back_flag == 0)
+        {
+            if(areaB_time == 0)
+            {
+                back_flag = -1;//右转
+            }
+            else if(areaB_time>0)
+            {
+                back_flag = 1;//左转
+            }
+        }
+    }
+    else if(mode_flag == 0||mode_flag == 1)
+    {
+        back_flag = 0;
+    }
+}
 
 /***************************** 坐标偏差控制程序 *******************************/
 void ERROR()
@@ -623,11 +565,11 @@ void Motor_control()
                 {
                     if(servo_pulse>250&&abs(angle_z)<=140)
                     {
-                        Rdesiredspeed = (Rdesiredspeed)*((-0.001427*(servo_pulse*0.01)*(servo_pulse*0.01)-0.06414*(servo_pulse*0.01)+0.9826)*correctspeed);
+                        Rdesiredspeed = (Rdesiredspeed)*((-0.001427*(servo_pulse*0.01)*(servo_pulse*0.01)-0.06414*(servo_pulse*0.01)+0.9826)*correctspeed1);
                     }
                     else
                     {
-                        Rdesiredspeed = (Rdesiredspeed)*(-0.001427*(servo_pulse*0.01)*(servo_pulse*0.01)-0.06414*(servo_pulse*0.01)+0.9826)*rightcorrect;
+                        Rdesiredspeed = (Rdesiredspeed)*(-0.001427*(servo_pulse*0.01)*(servo_pulse*0.01)-0.06414*(servo_pulse*0.01)+0.9826)*rightcorrect1;
                     }
                 }
                 else if(servo_pulse<-125) //左
@@ -635,11 +577,11 @@ void Motor_control()
                     if(servo_pulse<-250&&abs(angle_z)<=140)
                     {
 
-                        Ldesiredspeed = (Ldesiredspeed)*((0.001868*(servo_pulse*0.01)*(servo_pulse*0.01)-0.09044*(-servo_pulse*0.01)+1.006)*correctspeed);
+                        Ldesiredspeed = (Ldesiredspeed)*((0.001868*(servo_pulse*0.01)*(servo_pulse*0.01)-0.09044*(-servo_pulse*0.01)+1.006)*correctspeed1);
                     }
                     else
                     {
-                        Ldesiredspeed = (Ldesiredspeed)*(0.001868*(servo_pulse*0.01)*(servo_pulse*0.01)-0.09044*(-servo_pulse*0.01)+1.006)*leftcorrect;
+                        Ldesiredspeed = (Ldesiredspeed)*(0.001868*(servo_pulse*0.01)*(servo_pulse*0.01)-0.09044*(-servo_pulse*0.01)+1.006)*leftcorrect1;
                     }
                 }
             /**/

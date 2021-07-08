@@ -51,6 +51,7 @@ float camx=90, camy=75;
 int yzhi;
 
 int flag1 = 0;
+int area;
 
 //int mcmp(const void* a, const void* b)
 //{
@@ -299,7 +300,7 @@ void mmc_connect_num()
     flag1 = 1;
     biaozhi=0;
     float newx=0, newy = CAMERA_W, news = 0, newdis = 0;
-    int k = 0;
+    //int k = 0;
     lightdis = 0;
     lights = 0;
     lightx = 0;
@@ -341,7 +342,7 @@ void mmc_connect_num()
 //    {
 //
 //    }
-    for (int k = connectnum; k >= 1&&k>=connectnum-10; k--)
+    for (int k = 1;k<=connectnum&&k<20;k++)
     {
         uint8 up = 0, down = 0;
         uint8 maxleft = CAMERA_W, maxright = 0;
@@ -378,6 +379,103 @@ void mmc_connect_num()
         cc = centx - camx;
         dd = centy - camy;
         dis = sqrt(cc * cc + dd * dd);
+
+        if(centx<10)
+        {
+            if(centy<20)
+            {
+                area=1;
+                if(width>2||height>2||sss>2) jud=1;
+            }
+            else if(centy<168)
+            {
+                area=2;
+                if(width>8||height>6||sss>18) jud=1;
+            }
+            else if(centy<188)
+            {
+                area=3;
+                if(width>2||height>2||sss>2) jud=1;
+            }
+        }
+        else if(centx<27)
+        {
+            if(centy<20)
+            {
+                area=4;
+                if(width>7|height>4||sss>15) jud=1;
+            }
+            else if(centy<168)
+            {
+                area=5;
+                if(sss>140||sss<3) jud=1;
+                if(width>20) jud=2;
+                if(height>12) jud=3;
+            }
+            else if(centy<188)
+            {
+                area=6;
+                if(width>7|height>4||sss>15) jud=1;
+            }
+        }
+        else if(centx<56)
+        {
+            if(centy<20)
+            {
+                area=7;
+                if(sss>150||sss<4) jud=1;
+                if(width>15||width<2) jud=2;
+                if(height>15||height<2) jud=3;
+
+            }
+            else if(centy<168)
+            {
+                area=8;
+                if(sss>900||sss<5) jud=1;
+                if(width>38||width<4) jud=2;
+                if(height>37||height<2) jud=3;
+            }
+            else if(centy<188)
+            {
+                area=9;
+                if(sss>150||sss<4) jud=1;
+                if(width>15||width<2) jud=2;
+                if(height>15||height<2) jud=3;
+            }
+        }
+        else if(centx<86)
+        {
+            if(centy<20)
+            {
+                area=10;
+                if(centx<10)
+                {
+                    if(sss<3) jud=1;
+                    if(width<3) jud=2;
+                    if(height<3) jud=3;
+                }
+            }
+            else if(centy<168)
+            {
+                area=11;
+                if(sss<30) jud=1;
+                if(width<8) jud=2;
+                if(height<3) jud=3;
+
+            }
+            else if(centy<188)
+            {
+                area=12;
+                if(centy>178)
+                {
+                     if(sss<3) jud=1;
+                     if(width<3) jud=2;
+                     if(height<3) jud=3;
+                }
+
+            }
+        }
+
 //        if (dis > 95) jud = 0;
 //        else if (dis > 70)
 //        {

@@ -83,6 +83,10 @@ extern float batterylimit;
 extern float leftcorrect;
 extern float rightcorrect;
 extern float baspeed;
+extern float leftcorrect1;
+extern float rightcorrect1;
+extern float correctspeed1;
+
 
 extern int yzhi;
 
@@ -164,6 +168,9 @@ void MENU_listmmc()
     MENU_addfloat(&leftcorrect,5, "leftcorrect");
     MENU_addfloat(&rightcorrect,5, "rightcorrect");
     MENU_addfloat(&baspeed,5, "baspeed");
+    MENU_addfloat(&correctspeed1,5, "correctspeed1");
+     MENU_addfloat(&leftcorrect1,5, "leftcorrect1");
+     MENU_addfloat(&rightcorrect1,5, "rightcorrect1");
 
     MENU_addfloat(&cs2,6, "rzs");
 

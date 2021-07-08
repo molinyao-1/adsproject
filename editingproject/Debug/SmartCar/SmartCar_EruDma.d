@@ -1498,6 +1498,14 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 SmartCar_EruDma.o :	../SmartCar/SmartCar_EruDma.c
 ../SmartCar/SmartCar_EruDma.c :
 SmartCar_EruDma.o :	../SmartCar/SmartCar_Assert.h

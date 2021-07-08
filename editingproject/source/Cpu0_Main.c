@@ -234,7 +234,7 @@ int switch3=1;//第1个
 //    Pit_Start(CCU6_0,PIT_CH0);
     //控制
       Pit_Init(CCU6_1,PIT_CH0,2*1000);
-//    /*舵机*/
+    /*舵机*/
     Pit_Init(CCU6_1,PIT_CH1,3*1000);
 //    Pit_Init(CCU6_1,PIT_CH1,20*1000);
 //
@@ -373,7 +373,7 @@ int switch3=1;//第1个
         }
         else if(0==switch1&&0 == switch2)
         {
-            SmartCar_Show_IMG(&IMG[0][0],96,150);
+            SmartCar_Show_IMG(&IMG[0][0],86,188);
         }
 //        /**/
 //        /*按键操作*/
@@ -393,7 +393,7 @@ int switch3=1;//第1个
 
         /*采图*/
 //      SmartCar_ImgUpload((uint8*)IMG,120,188);  //采图用函数
-//      SmartCar_ImgUpload((uint8*)mt9v034_image,96,150);  //采图用函数
+//      SmartCar_ImgUpload((uint8*)mt9v034_image,86,188);  //采图用函数
        /**/
     }
 }

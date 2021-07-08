@@ -1498,6 +1498,14 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 SmartCar_Encoder.o :	../SmartCar/SmartCar_Encoder.c
 ../SmartCar/SmartCar_Encoder.c :
 SmartCar_Encoder.o :	../SmartCar/SmartCar_Encoder.h
